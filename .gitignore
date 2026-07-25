@@ -7,6 +7,11 @@ venv_pos/
 *.log
 ck.txt
 _workbuddy/
+.workbuddy/
+_vocab/
+_gen_wordlists.py
+gen_pos_lessons.log
+gen_audio.log
 
 # 系统
 .DS_Store

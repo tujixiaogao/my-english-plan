@@ -73,6 +73,16 @@
   .word-item .wi-zh{font-size:14px;color:#444;flex:1;}
   .word-item .wi-cat{font-size:11px;color:var(--mut);}
 
+  /* 词库多列表手风琴 */
+  .list-group{margin-bottom:10px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff;}
+  .list-head{display:flex;align-items:center;gap:10px;padding:14px 14px;cursor:pointer;background:linear-gradient(90deg,#eef4ff,#f7faff);font-weight:600;}
+  .list-head:active{background:#e3ecfb;}
+  .list-head .lh-name{font-size:16px;color:var(--blue-d);}
+  .list-head .lh-sub{font-size:12px;color:var(--mut);background:#fff;border:1px solid var(--line);padding:2px 8px;border-radius:8px;}
+  .list-head .lh-count{font-size:12px;color:var(--mut);margin-left:auto;}
+  .list-head .lh-arrow{font-size:14px;color:var(--mut);width:18px;text-align:center;}
+  .list-group .word-item:last-child{border-bottom:none;}
+
   /* 听学 */
   .listen-current{text-align:center;padding:28px 14px 20px;}
   .listen-current .word-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2px;}
@@ -177,7 +187,6 @@
 
     <!-- 词库 -->
     <section id="view-words" class="view">
-      <div class="filter" id="word-filter"></div>
       <input type="text" id="word-search" placeholder="搜索单词 / 中文…" style="margin-bottom:10px">
       <div id="word-list"></div>
     </section>
@@ -386,6 +395,7 @@
 </div>
 
 <script src="words.js"></script>
+<script src="wordlists.js"></script>
 <script src="ex_zh.js"></script>
 <script src="app.js"></script>
 </body>

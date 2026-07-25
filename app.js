@@ -122,6 +122,12 @@
   // ---------- 离线音频（预生成 mp3，兼容微信/自带浏览器） ----------
   var AUDIO_MAP = {};
   for (var _ai = 0; _ai < WORDS.length; _ai++) AUDIO_MAP[WORDS[_ai].w] = _ai;
+  // 全词查找表（跨所有列表），用于个人库/短文按词取对象；离线音频仍只看 AUDIO_MAP
+  var ALL_WORD_MAP = {};
+  for (var _li = 0; _li < WORD_LISTS.length; _li++) {
+    var _ws = (WORD_LISTS[_li].words === WORDS) ? WORDS : WORD_LISTS[_li].words;
+    for (var _wi = 0; _wi < _ws.length; _wi++) { if (!ALL_WORD_MAP[_ws[_wi].w]) ALL_WORD_MAP[_ws[_wi].w] = _ws[_wi]; }
+  }
   var HAS_AUDIO = true; // 已随应用打包 audio/ 目录
   function audioSrc(idx, kind) {
     var s = (kind === "ex") ? "_ex" : (kind === "zh") ? "_zh" : "_w";
@@ -268,7 +274,7 @@
       { en: "You go {W}.", zh: "你{ZH}地去。" }
     ]
   };
-  function getWordObj(w) { var i = AUDIO_MAP[w]; return (i !== undefined) ? WORDS[i] : null; }
+  function getWordObj(w) { return ALL_WORD_MAP[w] || null; }
   function passagePool() {
     var mode = el("passage-source") ? el("passage-source").value : "all";
     var pool = [];
@@ -488,54 +494,61 @@
     showView("learn");
   };
 
-  // ---------- 词库视图 ----------
+  // ---------- 词库视图（多列表可折叠） ----------
   var curFilter = "all";
   var curSearch = "";
+  var expandedLists = { be850: true };
+  function wordItemHtml(w) {
+    var learned = state.learned[w.w];
+    var mark = learned ? (learned.box >= 4 ? "✅" : "●") : "○";
+    var pin = inPersonal(w.w) ? "★" : "☆";
+    return '<div class="word-item">' +
+      '<div class="wi-en">' + esc(w.w) + "</div>" +
+      '<div class="wi-ipa">' + esc(w.ipa || "") + "</div>" +
+      '<div class="wi-zh">' + esc(w.zh || "") + "</div>" +
+      '<div class="wi-cat">' + mark + "</div>" +
+      '<button class="icon-btn" data-spk="' + esc(w.w) + '">🔊</button>' +
+      '<button class="icon-btn" data-personal="' + esc(w.w) + '">' + pin + "</button>" +
+      "</div>";
+  }
   function renderWords() {
-    var filt = el("word-filter");
-    if (!filt.dataset.built) {
-      var html = '<span class="chip on" data-cat="all">全部</span>';
-      CATS.forEach(function (c) {
-        html += '<span class="chip" data-cat="' + c + '">' + esc(WORD_CAT_LABELS[c]) + "</span>";
-      });
-      filt.innerHTML = html;
-      filt.dataset.built = "1";
-      filt.addEventListener("click", function (e) {
-        if (e.target.dataset.cat) {
-          curFilter = e.target.dataset.cat;
-          var chips = filt.querySelectorAll(".chip");
-          for (var i = 0; i < chips.length; i++) chips[i].classList.remove("on");
-          e.target.classList.add("on");
-          renderWords();
-        }
-      });
-    }
     var q = curSearch.trim().toLowerCase();
     var html = "";
-    var shown = 0;
-    for (var i = 0; i < WORDS.length; i++) {
-      var w = WORDS[i];
-      if (curFilter !== "all" && w.cat !== curFilter) continue;
-      if (q && w.w.toLowerCase().indexOf(q) === -1 && w.zh.indexOf(curSearch.trim()) === -1) continue;
-      var learned = state.learned[w.w];
-      var mark = learned ? (learned.box >= 4 ? "✅" : "●") : "○";
-      html +=
-        '<div class="word-item">' +
-          '<div class="wi-en">' + esc(w.w) + "</div>" +
-          '<div class="wi-ipa">' + esc(w.ipa) + "</div>" +
-          '<div class="wi-zh">' + esc(w.zh) + '</div>' +
-          '<div class="wi-cat">' + mark + "</div>" +
-          '<button class="icon-btn" data-spk="' + esc(w.w) + '">🔊</button>' +
-        "</div>";
-      shown++;
-      if (shown >= 400) { html += '<div class="muted center" style="padding:10px">…仅显示前 400 条，请用搜索缩小</div>'; break; }
+    if (q) {
+      var shown = 0;
+      for (var li = 0; li < WORD_LISTS.length; li++) {
+        var L = WORD_LISTS[li];
+        var ws = (L.words === WORDS) ? WORDS : L.words;
+        for (var i = 0; i < ws.length; i++) {
+          var w = ws[i];
+          if (w.w.toLowerCase().indexOf(q) === -1 && (w.zh || "").indexOf(curSearch.trim()) === -1) continue;
+          html += wordItemHtml(w);
+          if (++shown >= 400) { html += '<div class="muted center" style="padding:10px">…仅显示前 400 条，请缩小搜索</div>'; break; }
+        }
+        if (shown >= 400) break;
+      }
+      if (!html) html = '<div class="msg">没有匹配的词</div>';
+    } else {
+      for (var li = 0; li < WORD_LISTS.length; li++) {
+        var L = WORD_LISTS[li];
+        var n = (L.words === WORDS) ? WORDS.length : L.words.length;
+        var open = !!expandedLists[L.id];
+        html += '<div class="list-group">';
+        html += '<div class="list-head" data-list="' + L.id + '">' +
+          '<span class="lh-name">' + esc(L.name) + "</span>" +
+          '<span class="lh-sub">' + esc(L.sub || "") + "</span>" +
+          '<span class="lh-count">' + n + " 词</span>" +
+          '<span class="lh-arrow">' + (open ? "▾" : "▸") + "</span></div>";
+        if (open) {
+          var ws = (L.words === WORDS) ? WORDS : L.words;
+          var limit = 600;
+          for (var i = 0; i < ws.length && i < limit; i++) html += wordItemHtml(ws[i]);
+          if (ws.length > limit) html += '<div class="muted center">…仅显示前 ' + limit + ' 词，用搜索查看全部</div>';
+        }
+        html += "</div>";
+      }
     }
-    if (!html) html = '<div class="msg">没有匹配的词</div>';
     el("word-list").innerHTML = html;
-    var btns = el("word-list").querySelectorAll("[data-spk]");
-    for (var k = 0; k < btns.length; k++) {
-      btns[k].addEventListener("click", function () { sayEnWord(this.dataset.spk); });
-    }
   }
 
   // ---------- 听学视图 ----------
@@ -839,6 +852,14 @@
 
   // ---------- 个人单词库 ----------
   function inPersonal(w) { return (state.personal || []).indexOf(w) >= 0; }
+  function togglePersonalWord(wstr) {
+    var arr = state.personal || [];
+    var i = arr.indexOf(wstr);
+    if (i >= 0) arr.splice(i, 1); else arr.push(wstr);
+    state.personal = arr; save();
+    renderWords();
+    refreshPersonalBtn();
+  }
   function refreshPersonalBtn() {
     var btn = el("personal-btn"); if (!btn) return;
     var cnt = el("personal-count");
@@ -1099,6 +1120,20 @@
 
     // 搜索
     el("word-search").addEventListener("input", function () { curSearch = this.value; renderWords(); });
+    // 词库：手风琴展开 + 单词朗读 + 加入个人库（事件委托，避免重复绑定）
+    var wl = el("word-list");
+    if (wl && !wl.dataset.bound) {
+      wl.dataset.bound = "1";
+      wl.addEventListener("click", function (e) {
+        var t = e.target;
+        var spk = t.closest ? t.closest("[data-spk]") : null;
+        if (spk) { sayEnWord(spk.getAttribute("data-spk")); return; }
+        var pin = t.closest ? t.closest("[data-personal]") : null;
+        if (pin) { togglePersonalWord(pin.getAttribute("data-personal")); return; }
+        var head = t.closest ? t.closest("[data-list]") : null;
+        if (head) { var id = head.getAttribute("data-list"); expandedLists[id] = !expandedLists[id]; renderWords(); return; }
+      });
+    }
     // 设置
     el("set-perday").addEventListener("change", function () {
       var v = parseInt(this.value, 10); if (v < 1) v = 1; if (v > 50) v = 50;
