@@ -1,0 +1,13 @@
+# 构建/脚本/日志（部署不需要）
+*.py
+*.pyc
+__pycache__/
+venv/
+venv_pos/
+*.log
+ck.txt
+_workbuddy/
+
+# 系统
+.DS_Store
+Thumbs.db

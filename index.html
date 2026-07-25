@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#185FA5">
+<link rel="manifest" href="manifest.json">
+<title>Basic English 850 · 词汇攻克</title>
+<style>
+  :root{
+    --blue:#185FA5; --blue-d:#0C447C; --blue-l:#E6F1FB;
+    --green:#3B6D11; --green-l:#EAF3DE;
+    --amber:#854F0B; --amber-l:#FAEEDA;
+    --pink:#993556; --pink-l:#FBEAF0;
+    --gray:#5F5E5A; --line:#E3E1DA; --bg:#F7F6F2; --card:#FFFFFF;
+    --text:#222; --mut:#6b6b6b;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+    font-size:16px;line-height:1.5;}
+  .wrap{max-width:560px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+  header{padding:14px 16px 8px;background:var(--card);border-bottom:1px solid var(--line);}
+  header h1{font-size:18px;margin:0;font-weight:600;color:var(--blue-d);}
+  header .sub{font-size:12px;color:var(--mut);margin-top:2px;}
+  .hd-bar{display:flex;align-items:center;gap:10px;}
+  .back-home{flex:0 0 auto;font-size:14px;padding:8px 14px;border-radius:10px;border:1.5px solid var(--blue);background:var(--card);color:var(--blue);cursor:pointer;font-family:inherit;}
+  .back-home:active{background:var(--blue-l);transform:scale(.97);}
+  main{flex:1;padding:16px;overflow-y:auto;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* 进度条 */
+  .bar{height:10px;border-radius:6px;background:var(--line);overflow:hidden;margin:8px 0;}
+  .bar > i{display:block;height:100%;background:var(--blue);border-radius:6px;transition:width .3s;}
+
+  /* 卡片 */
+  .card-box{background:var(--card);border:1px solid var(--line);border-radius:16px;
+    padding:8px;margin:10px 0;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .flashcard{height:300px;border-radius:14px;perspective:1200px;cursor:pointer;margin:6px 0 14px;}
+  .flashcard .inner{position:relative;width:100%;height:100%;transition:transform .4s;transform-style:preserve-3d;}
+  .flashcard.flipped .inner{transform:rotateY(180deg);}
+  .face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+    border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;}
+  .face.front{background:linear-gradient(160deg,#E6F1FB,#fff);border:1px solid #B5D4F4;}
+  .face.back{background:linear-gradient(160deg,#EAF3DE,#fff);border:1px solid #C0DD97;transform:rotateY(180deg);}
+  .word-en{font-size:40px;font-weight:600;color:var(--blue-d);letter-spacing:.5px;}
+  .word-ipa{font-size:18px;color:var(--mut);margin-top:8px;}
+  .word-zh{font-size:30px;font-weight:600;color:var(--green);}
+  .word-pos{display:inline-block;font-size:12px;background:var(--amber-l);color:var(--amber);
+    padding:2px 8px;border-radius:10px;margin:8px 0;}
+  .word-ex{font-size:15px;color:#444;margin-top:6px;}
+
+  .row{display:flex;gap:10px;}
+  .row.two > *{flex:1;}
+  button{font-family:inherit;font-size:16px;border:1px solid var(--line);background:var(--card);
+    color:var(--text);border-radius:12px;padding:14px;cursor:pointer;transition:.15s;}
+  button:active{transform:scale(.97);}
+  .btn-primary{background:var(--blue);color:#fff;border-color:var(--blue);}
+  .btn-green{background:var(--green);color:#fff;border-color:var(--green);}
+  .btn-ghost{background:transparent;}
+  .icon-btn{width:48px;height:48px;border-radius:50%;font-size:20px;padding:0;display:flex;align-items:center;justify-content:center;}
+
+  /* 列表 */
+  .filter{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+  .chip{font-size:13px;padding:8px 12px;border-radius:20px;border:1px solid var(--line);background:var(--card);color:var(--mut);}
+  .chip.on{background:var(--blue);color:#fff;border-color:var(--blue);}
+  input[type=text],input[type=number],select{width:100%;padding:12px;border:1px solid var(--line);
+    border-radius:10px;font-size:15px;background:var(--card);color:var(--text);}
+  .word-item{display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--line);}
+  .word-item .wi-en{font-size:17px;font-weight:600;color:var(--blue-d);min-width:84px;}
+  .word-item .wi-ipa{font-size:13px;color:var(--mut);min-width:96px;}
+  .word-item .wi-zh{font-size:14px;color:#444;flex:1;}
+  .word-item .wi-cat{font-size:11px;color:var(--mut);}
+
+  /* 听学 */
+  .listen-current{text-align:center;padding:28px 14px 20px;}
+  .listen-current .word-row{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:2px;}
+  .listen-current .lc-en{font-size:56px;font-weight:700;color:var(--blue-d);line-height:1.15;word-break:break-word;}
+  .listen-current .lc-pos{font-size:16px;font-weight:600;color:#fff;background:var(--blue);padding:3px 10px;border-radius:10px;letter-spacing:.5px;flex-shrink:0;}
+  .listen-current .lc-ipa{font-size:28px;color:var(--mut);margin-top:8px;font-family:Georgia,'Times New Roman',serif;}
+  .listen-current .lc-zh{font-size:32px;color:var(--green);margin-top:10px;font-weight:600;}
+  .listen-current .lc-ex{font-size:28px;color:var(--text);margin-top:14px;line-height:1.45;padding:14px 18px;background:var(--card);border-radius:12px;border-left:4px solid var(--blue);text-align:left;word-break:break-word;}
+  .listen-current .lc-ex-zh{font-size:24px;color:#d2691e;margin-top:8px;line-height:1.45;padding:10px 16px;background:#fff6ec;border-radius:12px;border-left:4px solid #f0a04b;text-align:left;word-break:break-word;display:none;}
+  .listen-current .lc-ex-zh.show{display:block;}
+  .listen-current .lc-stage{font-size:18px;color:var(--blue);margin-top:12px;font-weight:600;min-height:22px;}
+  .readall-actions{display:flex;align-items:center;gap:10px;margin-top:10px;}
+  .btn-ghost{background:transparent;border:1.5px solid var(--line);color:var(--mut);border-radius:10px;padding:9px 14px;font-size:14px;flex:0 0 auto;}
+  .ex-zh-toggle{font-size:14px;padding:8px 16px;border-radius:20px;border:1.5px solid var(--amber);color:var(--amber);background:var(--amber-l);}
+  .ex-zh-toggle.on{background:var(--amber);color:#fff;border-color:var(--amber);}
+  .action-bar{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:4px;flex-wrap:wrap;}
+  .personal-btn{font-size:15px;padding:9px 18px;border-radius:22px;border:1.5px solid var(--pink);color:var(--pink);background:#fff0f4;font-weight:600;}
+  .personal-btn.on{background:var(--pink);color:#fff;border-color:var(--pink);}
+  .personal-count{font-size:13px;color:var(--mut);}
+  .ab-box{margin-top:10px;border-top:1px dashed var(--line);padding-top:10px;}
+  .ab-chk{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);}
+  .ab-chk input{width:18px;height:18px;}
+  .ab-inputs{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:8px;font-size:14px;color:var(--mut);}
+  .ab-inputs input{width:74px;padding:8px;border:1px solid var(--line);border-radius:8px;font-size:15px;text-align:center;font-family:inherit;}
+  .btn-ghost:active{background:var(--card);}
+  .nav-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:6px;}
+  .nav-row .btn-ghost{min-width:96px;}
+  .nav-row .muted{min-width:96px;text-align:center;}
+  .pos-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0;}
+  .pos-card.playing{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-l);}
+  .pos-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+  .pos-name{font-size:18px;font-weight:700;color:var(--blue-d);}
+  .pos-intro{font-size:15px;color:#444;line-height:1.55;}
+  .pos-ex{font-size:15px;color:var(--text);margin-top:8px;background:var(--blue-l);border-radius:10px;padding:8px 10px;}
+  .pos-play{margin-top:10px;width:100%;background:var(--blue);color:#fff;border:none;font-size:15px;padding:12px;border-radius:10px;}
+  .pos-play:active{transform:scale(.98);}
+  .big-play{width:120px;height:120px;border-radius:50%;background:var(--blue);color:#fff;font-size:42px;
+    margin:18px auto;display:flex;align-items:center;justify-content:center;border:none;}
+  .field{margin:14px 0;}
+  .field label{display:block;font-size:13px;color:var(--mut);margin-bottom:6px;}
+  .field .val{float:right;color:var(--blue);font-weight:600;}
+
+  /* 统计 */
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;}
+  .stat .n{font-size:26px;font-weight:700;color:var(--blue-d);}
+  .stat .t{font-size:12px;color:var(--mut);margin-top:2px;}
+  .cat-row{display:flex;align-items:center;gap:10px;margin:8px 0;font-size:14px;}
+  .cat-row .name{width:120px;color:#444;}
+  .cat-row .bar{flex:1;margin:0;}
+  .cat-row .pct{width:44px;text-align:right;color:var(--mut);font-size:13px;}
+
+  .muted{color:var(--mut);font-size:13px;}
+  .center{text-align:center;}
+  .msg{padding:18px;text-align:center;color:var(--mut);}
+  .done-badge{background:var(--green-l);color:var(--green);border-radius:12px;padding:18px;text-align:center;margin:14px 0;}
+
+  /* 小短文 */
+  .ps-item{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0;}
+  .ps-en{font-size:19px;font-weight:600;color:var(--blue-d);line-height:1.5;word-break:break-word;}
+  .ps-en .focus{background:var(--amber-l);color:var(--amber);padding:1px 5px;border-radius:6px;}
+  .ps-zh{font-size:15px;color:var(--green);margin-top:6px;line-height:1.5;word-break:break-word;}
+  .ps-zh.hidden{display:none;}
+
+  /* 底部导航 */
+  nav{display:flex;background:var(--card);border-top:1px solid var(--line);}
+  nav .tab{flex:1;text-align:center;padding:10px 2px;font-size:12px;color:var(--mut);cursor:pointer;border:none;background:none;border-radius:0;}
+  nav .tab .ic{font-size:20px;display:block;margin-bottom:2px;}
+  nav .tab.on{color:var(--blue);font-weight:600;}
+  .hidden{display:none!important;}
+  .badge{display:inline-block;background:var(--pink);color:#fff;font-size:11px;border-radius:10px;padding:1px 6px;margin-left:4px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="hd-bar">
+      <button id="back-home" class="back-home hidden">‹ 返回主界面</button>
+      <div>
+        <h1>Basic English 850</h1>
+        <div class="sub">掌握这 850 词，覆盖日常英语约 80% 的表达</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 学习 -->
+    <section id="view-learn" class="view active">
+      <div class="card-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:13px;color:var(--mut)">今日任务</div>
+            <div id="learn-count" style="font-size:20px;font-weight:700;color:var(--blue-d)">0 / 0</div>
+          </div>
+          <div id="learn-streak" class="muted" style="text-align:right">🔥 连续 0 天</div>
+        </div>
+        <div class="bar"><i id="learn-bar" style="width:0%"></i></div>
+      </div>
+
+      <div id="learn-area"></div>
+    </section>
+
+    <!-- 词库 -->
+    <section id="view-words" class="view">
+      <div class="filter" id="word-filter"></div>
+      <input type="text" id="word-search" placeholder="搜索单词 / 中文…" style="margin-bottom:10px">
+      <div id="word-list"></div>
+    </section>
+
+    <!-- 听学 -->
+    <section id="view-listen" class="view">
+      <div class="card-box">
+        <div class="listen-current">
+          <div class="word-row">
+            <div class="lc-en" id="lc-en">准备就绪</div>
+            <div class="lc-pos" id="lc-pos"></div>
+          </div>
+          <div class="lc-ipa" id="lc-ipa"></div>
+          <div class="lc-zh" id="lc-zh"></div>
+          <div class="lc-ex" id="lc-ex"></div>
+          <div class="lc-ex-zh" id="lc-ex-zh"></div>
+          <div class="lc-stage" id="lc-stage"></div>
+        </div>
+        <div class="action-bar">
+          <button class="ex-zh-toggle" id="ex-zh-toggle">显示例句中文</button>
+          <button class="personal-btn" id="personal-btn">☆ 加入个人库</button>
+          <span class="personal-count" id="personal-count">个人库 0 词</span>
+        </div>
+        <div class="nav-row">
+          <button class="btn-ghost" id="nav-prev">‹ 上一个</button>
+          <span class="muted" id="nav-info"></span>
+          <button class="btn-ghost" id="nav-next">下一个 ›</button>
+        </div>
+        <button class="big-play" id="listen-play">▶</button>
+        <div class="center muted" id="listen-status">点击下方按钮开始听学</div>
+      </div>
+      <div class="card-box">
+        <div class="field">
+          <label>朗读范围</label>
+          <select id="listen-range">
+            <option value="learned">已学过的词</option>
+            <option value="today">今日任务词</option>
+            <option value="all">全部 850 词</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>语速 <span class="val" id="rate-val">1.0×</span></label>
+          <input type="range" id="listen-rate" min="0.5" max="1.5" step="0.1" value="1.0">
+        </div>
+        <div class="field">
+          <label>每个词间隔 <span class="val" id="gap-val">3 秒</span></label>
+          <input type="range" id="listen-gap" min="1" max="8" step="1" value="3">
+        </div>
+        <div class="field">
+          <label>朗读顺序</label>
+          <select id="listen-order">
+            <option value="seq">顺序</option>
+            <option value="shuffle">随机</option>
+          </select>
+        </div>
+        <label class="ab-chk" style="margin-top:6px"><input type="checkbox" id="loop-listen"> 循环播放（关闭=只播一遍后停止）</label>
+        <div class="muted" style="margin-top:6px">🔊 单词发音已内置离线音频，微信 / 手机自带浏览器都能正常播放。<br>📱 朗读时自动申请「屏幕常亮」（Wake Lock）；若用的是微信内置浏览器且该能力不可用导致锁屏，请改用手机 Chrome 打开本页，或开启系统「驾驶模式/防休眠」。</div>
+      </div>
+
+      <div class="card-box" style="margin-top:14px">
+        <div style="font-weight:600;margin-bottom:4px">🔁 一键朗读</div>
+        <div class="muted" style="margin-bottom:10px">流程：对<b>每个单词</b>循环朗读「单词→词性→中文→例句」<b>N 遍</b>，再读下一个；全部单词整体朗读 <b>M 遍</b>。开车磨耳朵专用。</div>
+        <div class="field">
+          <label>朗读范围</label>
+          <select id="readall-mode">
+            <option value="all">全部 850 词</option>
+            <option value="letter">按首字母（如 A 开头 / B 开头）</option>
+            <option value="ab">序号区间（第 A~B 词）</option>
+            <option value="personal">我的个人单词库</option>
+          </select>
+        </div>
+        <div class="ab-box" id="readall-letter-box" style="display:none">
+          <label class="ab-chk">首字母</label>
+          <select id="readall-letter"></select>
+        </div>
+        <div class="ab-box" id="readall-ab-box" style="display:none">
+          <label class="ab-chk">区间（含两端）</label>
+          <div class="ab-inputs" style="display:flex">
+            <span>第</span><input type="number" id="readall-ab-a" min="1" max="850" value="1">
+            <span>到 第</span><input type="number" id="readall-ab-b" min="1" max="850" value="850"><span>词</span>
+          </div>
+        </div>
+        <div class="ab-box" id="readall-personal-box" style="display:none">
+          <div class="muted">仅朗读你加入个人库的单词，当前共 <b id="personal-inmode">0</b> 词。朗读时点击上方「☆ 加入个人库」即可收集。</div>
+        </div>
+        <div class="field">
+          <label>每词朗读次数 <span class="val" id="reps-val">3 次</span></label>
+          <select id="readall-reps">
+            <option value="1">1 次</option>
+            <option value="2">2 次</option>
+            <option value="3" selected>3 次</option>
+            <option value="5">5 次</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>连播轮数</label>
+          <select id="readall-rounds">
+            <option value="0">一直循环</option>
+            <option value="1">1 遍</option>
+            <option value="2">2 遍</option>
+            <option value="3" selected>3 遍</option>
+            <option value="5">5 遍</option>
+            <option value="10">10 遍</option>
+          </select>
+        </div>
+        <button class="btn-primary" id="readall-play" style="width:100%;font-size:17px;padding:15px;margin-top:4px">▶ 一键朗读（单词→词性→中文→例句）</button>
+        <div class="readall-actions">
+          <button class="btn-ghost" id="readall-restart">↺ 从头朗读</button>
+          <span class="muted" id="readall-hint"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 小短文复习 -->
+    <section id="view-passage" class="view">
+      <div class="card-box">
+        <div style="font-weight:600;margin-bottom:4px">📖 小短文复习</div>
+        <div class="muted" style="margin-bottom:10px">从你的词库挑词，一键生成小短文，带中文注释；点「🔊 朗读全文」逐词听，开车磨耳朵复习两不误。</div>
+        <div class="row two" style="margin-bottom:10px">
+          <div class="field" style="margin:0">
+            <label>来源</label>
+            <select id="passage-source">
+              <option value="personal">我的个人库</option>
+              <option value="learned">已学过的词</option>
+              <option value="all" selected>全部 850 词</option>
+            </select>
+          </div>
+          <div class="field" style="margin:0">
+            <label>句数</label>
+            <select id="passage-count">
+              <option value="4">4 句</option>
+              <option value="6" selected>6 句</option>
+              <option value="8">8 句</option>
+              <option value="10">10 句</option>
+              <option value="12">12 句</option>
+            </select>
+          </div>
+        </div>
+        <div class="row" style="gap:10px">
+          <button class="btn-primary" id="passage-gen" style="flex:1">🎲 生成小短文</button>
+          <button class="btn-ghost" id="passage-zh-toggle" style="flex:1">隐藏中文</button>
+        </div>
+        <button class="btn-green" id="passage-play" style="width:100%;margin-top:10px;font-size:16px;padding:14px">🔊 朗读全文</button>
+        <div class="center muted" id="passage-status" style="margin-top:8px">点「生成小短文」开始</div>
+      </div>
+      <div id="passage-list"></div>
+    </section>
+
+    <!-- 统计 -->
+    <section id="view-stats" class="view">
+      <div class="stat-grid">
+        <div class="stat"><div class="n" id="st-total">850</div><div class="t">总词数</div></div>
+        <div class="stat"><div class="n" id="st-learned">0</div><div class="t">已学习</div></div>
+        <div class="stat"><div class="n" id="st-mastered">0</div><div class="t">已掌握(box≥4)</div></div>
+        <div class="stat"><div class="n" id="st-streak">0</div><div class="t">连续天数</div></div>
+      </div>
+      <div class="card-box">
+        <div style="font-weight:600;margin-bottom:6px">分类掌握度</div>
+        <div id="st-cats"></div>
+      </div>
+    </section>
+
+    <!-- 词性学习 -->
+    <section id="view-pos" class="view">
+      <div class="card-box">
+        <div style="font-weight:600;margin-bottom:4px">📘 词性学习</div>
+        <div class="muted" style="margin-bottom:10px">点「朗读这个词性」即可听：词性名 → 通俗讲解 → 例句。帮你搞清楚每个词性到底是干嘛的。</div>
+        <div id="pos-list"></div>
+        <div class="center muted" id="pos-status" style="margin-top:10px">点击上面的按钮开始朗读</div>
+      </div>
+    </section>
+
+    <!-- 设置 -->
+    <section id="view-settings" class="view">
+      <div class="card-box">
+        <div class="field">
+          <label>每日新词数</label>
+          <input type="number" id="set-perday" min="1" max="50" value="10">
+        </div>
+        <div class="field">
+          <label>朗读语音（英文）</label>
+          <select id="set-voice"><option value="">默认</option></select>
+        </div>
+        <label class="ab-chk" style="margin:8px 0 2px"><input type="checkbox" id="set-keepawake"> 屏幕常亮（开车用；关闭后可息屏听，但依赖浏览器支持）</label>
+        <button class="btn-ghost" id="btn-export" style="width:100%;margin-top:6px">导出进度（备份）</button>
+        <button class="btn-ghost" id="btn-import" style="width:100%;margin-top:8px">导入进度（恢复）</button>
+        <input type="file" id="import-file" accept="application/json" class="hidden">
+        <button id="btn-reset" style="width:100%;margin-top:8px;color:var(--pink);border-color:#f0c4cf">重置全部进度</button>
+      </div>
+      <div class="muted center" style="margin-top:14px">
+        Basic English 850 词表来自 Wiktionary（Ogden 原表）。<br>
+        数据全部保存在本机浏览器，离线可用。
+      </div>
+    </section>
+  </main>
+
+  <nav>
+    <button class="tab on" data-view="learn"><span class="ic">📚</span>学习</button>
+    <button class="tab" data-view="words"><span class="ic">🔤</span>词库</button>
+    <button class="tab" data-view="listen"><span class="ic">🎧</span>听学</button>
+    <button class="tab" data-view="passage"><span class="ic">📖</span>短文</button>
+    <button class="tab" data-view="stats"><span class="ic">📊</span>统计</button>
+    <button class="tab" data-view="pos"><span class="ic">📘</span>词性</button>
+    <button class="tab" data-view="settings"><span class="ic">⚙️</span>设置</button>
+  </nav>
+</div>
+
+<script src="words.js"></script>
+<script src="ex_zh.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
