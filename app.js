@@ -105,16 +105,30 @@
     return null;
   }
   function speak(text, lang, cb) {
-    if (!("speechSynthesis" in window)) { if (cb) setTimeout(cb, 10); return; }
-    var u = new SpeechSynthesisUtterance(text);
+    if (!("speechSynthesis" in window)) { if (cb) setTimeout(cb, 0); return; }
+    if (text === undefined || text === null || text === "") { if (cb) setTimeout(cb, 0); return; }
+    var u = new SpeechSynthesisUtterance(String(text));
     u.lang = lang;
-    u.rate = lang === "zh-CN" ? state.settings.rate * 0.9 : state.settings.rate;
+    var r = parseFloat(state.settings.rate) || 1;
+    u.rate = lang === "zh-CN" ? r * 0.9 : r;
     var v = pickVoice(lang === "zh-CN" ? "zh" : "en");
     if (v) u.voice = v;
-    try { speechSynthesis.cancel(); } catch (e) {}
-    speechSynthesis.speak(u);
-    var est = Math.max(700, text.length * (lang === "zh-CN" ? 130 : 70) / state.settings.rate);
-    setTimeout(function () { if (cb) cb(); }, est);
+    var finished = false;
+    function done() { if (!finished) { finished = true; if (cb) cb(); } }
+    u.onend = done;
+    u.onerror = done;
+    // 关键修复：避免 cancel() 与 speak() 在同一次调用中紧邻执行引发竞态
+    // （该竞态会让 Chromium 丢弃新 utterance，造成“朗读没声音”）。
+    // 仅当确有朗读正在进行时才 cancel，并延迟一帧（约 60ms）再 speak。
+    if (speechSynthesis.speaking || speechSynthesis.pending) {
+      try { speechSynthesis.cancel(); } catch (e) {}
+      setTimeout(function () { try { speechSynthesis.speak(u); } catch (e) { done(); } }, 60);
+    } else {
+      try { speechSynthesis.speak(u); } catch (e) { done(); }
+    }
+    // 兜底：极个别浏览器 onend/onerror 不触发时，超时后继续队列（留出充足余量，避免提前推进）
+    var est = Math.max(1500, String(text).length * (lang === "zh-CN" ? 200 : 110) / r) + 2000;
+    setTimeout(done, est);
   }
   function speakEn(text, cb) { speak(text, "en-US", cb); }
   function speakZh(text, cb) { speak(text, "zh-CN", cb); }
@@ -987,7 +1001,43 @@
     { name: "情态动词 can / must", intro: "表示“能、会、必须”等语气，后面永远跟动词原形。比如“我会游泳”“你必须睡觉”。", formula: "can / must / should + 动词原形（不三单加 s，也不加 to）。", examples: ["I can swim. 我会游泳。", "You must sleep. 你必须睡觉。"], tip: "口诀：情态动词很特别，后面永远跟原形。" },
     { name: "There be 句型", intro: "说“某处有某物/某人”，表示存在。比如“桌上有一本书”“公园里有许多花”。", formula: "There is + 单数/不可数；There are + 复数。就近原则：挨着 is/are 的词决定单复数。", examples: ["There is a book on the desk. 桌上有一本书。", "There are many flowers. 有许多花。"], tip: "口诀：there be 表存在，就近原则单数先。" }
   ];
+  // 语法朗读序列号，用于停止/重启动断当前朗读链
+  var grammarRunId = 0;
   function renderGrammar() {
+    // ---- 思维导图（顶部总览，可点击跳转到对应语法点）----
+    var cats = [
+      { name: "时态", items: [0, 1, 2, 3, 4] },
+      { name: "比较级", items: [5] },
+      { name: "情态动词", items: [6] },
+      { name: "There be", items: [7] }
+    ];
+    var svg = '<svg viewBox="0 0 760 440" width="100%" style="max-width:760px;display:block;margin:6px auto 12px" font-family="inherit" role="img" aria-label="语法思维导图">';
+    svg += mindNode(70, 198, 110, 44, "语法总览", "#2f6fed", "#fff", "");
+    var catX = 250, catW = 120, leafX = 490, leafW = 160, leafH = 40;
+    var catY = [55, 252, 308, 364];
+    var tY = [];
+    for (var t = 0; t < 5; t++) tY.push(20 + t * 50);
+    for (var c = 0; c < cats.length; c++) {
+      var cy = catY[c];
+      svg += mindLine(180, 220, catX, cy + 22);
+      svg += mindNode(catX, cy, catW, 44, cats[c].name, "#e3edff", "#1f4fb0", "");
+      var items = cats[c].items;
+      for (var k = 0; k < items.length; k++) {
+        var idx = items[k];
+        var ly = (c === 0) ? tY[k] : cy + 2;
+        svg += mindLine(catX + catW, cy + 22, leafX, ly + leafH / 2);
+        svg += mindNode(leafX, ly, leafW, leafH, GRAMMAR_LESSONS[idx].name, "#fff", "#333", "g" + idx);
+      }
+    }
+    svg += '</svg>';
+    el("grammar-mindmap").innerHTML = svg;
+    el("grammar-mindmap").addEventListener("click", function (e) {
+      var t = e.target.closest ? e.target.closest("[data-g]") : null;
+      if (!t) return;
+      openGrammar(parseInt(t.getAttribute("data-g"), 10));
+    });
+
+    // ---- 语法点卡片列表 ----
     var html = "";
     GRAMMAR_LESSONS.forEach(function (g, idx) {
       var exHtml = "";
@@ -1011,40 +1061,102 @@
       });
     }
   }
-  function playGrammar(g, btn) {
-    if (!HAS_AUDIO && !("speechSynthesis" in window)) { alert("当前环境无法播放语音"); return; }
-    var cards = el("grammar-list").querySelectorAll(".g-card");
-    for (var i = 0; i < cards.length; i++) cards[i].classList.remove("playing");
-    var card = el("g-card-" + (GRAMMAR_LESSONS.indexOf(g))); if (card) card.classList.add("playing");
-    if (state.settings.keepAwake) requestWakeLock();
-    el("grammar-status").textContent = "正在朗读：" + g.name;
-    var exEn = [], exZh = [];
+  // 思维导图节点（data-g 用于点击跳转；无 g 的为中心/类别节点）
+  function mindNode(x, y, w, h, label, fill, color, g) {
+    var r = '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="11" ry="11" fill="' + fill + '" stroke="' + (g ? "#2f6fed" : "#bcd2ff") + '" stroke-width="' + (g ? 2 : 1) + '"' + (g ? ' data-g="' + g + '" style="cursor:pointer"' : '') + '>';
+    r += '<title>' + esc(label) + '</title></rect>';
+    r += '<text x="' + (x + w / 2) + '" y="' + (y + h / 2) + '" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="' + color + '" pointer-events="none">' + esc(label) + '</text>';
+    return r;
+  }
+  function mindLine(x1, y1, x2, y2) {
+    return '<line x1="' + x1 + '" y1="' + y1 + '" x2="' + x2 + '" y2="' + y2 + '" stroke="#c9d8f5" stroke-width="2" />';
+  }
+  function openGrammar(idx) {
+    var card = el("g-card-" + idx);
+    if (!card) return;
+    card.scrollIntoView({ behavior: "smooth", block: "center" });
+    card.classList.remove("flash");
+    void card.offsetWidth; // 重启动画
+    card.classList.add("flash");
+    setTimeout(function () { card.classList.remove("flash"); }, 2000);
+  }
+  // 将一条语法讲解拆成 {text, lang} 朗读队列：名称→讲解→结构→例句(英+中)
+  function grammarQueue(g) {
+    var q = [];
+    q.push({ text: g.name + "。", lang: "zh-CN" });
+    q.push({ text: g.intro, lang: "zh-CN" });
+    q.push({ text: "结构：" + g.formula, lang: "zh-CN" });
     g.examples.forEach(function (e) {
       var sp = e.indexOf(". ");
-      if (sp > 0) { exEn.push(e.slice(0, sp)); exZh.push(e.slice(sp + 2)); }
-      else { exEn.push(e); exZh.push(""); }
+      if (sp > 0) { q.push({ text: e.slice(0, sp), lang: "en-US" }); q.push({ text: e.slice(sp + 2), lang: "zh-CN" }); }
+      else { q.push({ text: e, lang: "en-US" }); }
     });
-    // 顺序：名称→讲解→结构→例句(英+中)
-    speakZh(g.name + "。", function () {
-      speakZh(g.intro, function () {
-        speakZh("结构：" + g.formula, function () {
-          var i = 0;
-          function next() {
-            if (i >= exEn.length) { finish(); return; }
-            speakEn(exEn[i], function () {
-              if (exZh[i]) speakZh(exZh[i], function () { i++; next(); });
-              else { i++; next(); }
-            });
-          }
-          next();
-        });
-      });
-    });
+    return q;
+  }
+  function playGrammar(g, btn) {
+    if (!HAS_AUDIO && !("speechSynthesis" in window)) { alert("当前环境无法播放语音"); return; }
+    grammarRunId++;                 // 使旧朗读链失效
+    var myRun = grammarRunId;
+    stopAudio();
+    var idx = GRAMMAR_LESSONS.indexOf(g);
+    var cards = el("grammar-list").querySelectorAll(".g-card");
+    for (var i = 0; i < cards.length; i++) cards[i].classList.remove("playing");
+    var card = el("g-card-" + idx); if (card) card.classList.add("playing");
+    if (state.settings.keepAwake) requestWakeLock();
+    var queue = grammarQueue(g);
+    var i2 = 0;
+    function alive() { return myRun === grammarRunId; }
+    function next() {
+      if (!alive()) return;
+      if (i2 >= queue.length) { finish(); return; }
+      var it = queue[i2++];
+      el("grammar-status").textContent = "正在朗读：" + g.name + "（" + i2 + "/" + queue.length + "）";
+      speak(it.text, it.lang, function () { if (alive()) next(); });
+    }
     function finish() {
+      if (!alive()) return;
       el("grammar-status").textContent = "已朗读完：" + g.name + "（可点其它语法点继续）";
       if (card) card.classList.remove("playing");
       releaseWakeLock();
     }
+    next();
+  }
+  // 一键朗读全部语法点
+  function playAllGrammar() {
+    if (!HAS_AUDIO && !("speechSynthesis" in window)) { alert("当前环境无法播放语音"); return; }
+    grammarRunId++;
+    var myRun = grammarRunId;
+    stopAudio();
+    if (state.settings.keepAwake) requestWakeLock();
+    var i = 0;
+    function alive() { return myRun === grammarRunId; }
+    function nextOne() {
+      if (!alive()) return;
+      if (i >= GRAMMAR_LESSONS.length) { finish(); return; }
+      var g = GRAMMAR_LESSONS[i];
+      var cards = el("grammar-list").querySelectorAll(".g-card");
+      for (var c = 0; c < cards.length; c++) cards[c].classList.remove("playing");
+      var card = el("g-card-" + i);
+      if (card) { card.classList.add("playing"); card.scrollIntoView({ behavior: "smooth", block: "center" }); }
+      el("grammar-status").textContent = "正在朗读语法 (" + (i + 1) + "/" + GRAMMAR_LESSONS.length + ")：" + g.name;
+      var queue = grammarQueue(g);
+      var j = 0;
+      function nextItem() {
+        if (!alive()) return;
+        if (j >= queue.length) { i++; nextOne(); return; }
+        var it = queue[j++];
+        speak(it.text, it.lang, function () { if (alive()) nextItem(); });
+      }
+      nextItem();
+    }
+    function finish() {
+      if (!alive()) return;
+      el("grammar-status").textContent = "已全部朗读完 " + GRAMMAR_LESSONS.length + " 个语法点 ✅（可再点一次重听）";
+      var cards = el("grammar-list").querySelectorAll(".g-card");
+      for (var c = 0; c < cards.length; c++) cards[c].classList.remove("playing");
+      releaseWakeLock();
+    }
+    nextOne();
   }
 
   // ---------- 音标学习栏目 ----------
@@ -1446,6 +1558,13 @@
       phonicsRunId++;            // 使当前朗读链失效
       stopAudio();
       el("phonics-status").textContent = "已停止";
+    });
+    // 语法：一键朗读全部 + 停止
+    var gr = el("grammar-readall"); if (gr) gr.addEventListener("click", playAllGrammar);
+    var gs = el("grammar-stop"); if (gs) gs.addEventListener("click", function () {
+      grammarRunId++;           // 使当前朗读链失效
+      stopAudio();
+      el("grammar-status").textContent = "已停止";
     });
     el("nav-prev").addEventListener("click", function () { navGoto(-1); });
     el("nav-next").addEventListener("click", function () { navGoto(1); });
