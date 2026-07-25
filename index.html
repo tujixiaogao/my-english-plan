@@ -149,6 +149,24 @@
   .ph-ex:hover{background:#e3edff;border-color:var(--blue);}
   .ph-ex:active{transform:scale(.97);}
   .ph-play{margin-top:8px;font-size:14px;padding:10px;}
+  /* 音标分层折叠：大类 / 子分组 */
+  .ph-cat{margin:10px 0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card);}
+  .ph-cat-head{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none;
+    background:linear-gradient(135deg,#eef4ff,#f6f0ff);transition:background .15s;}
+  .ph-cat-head:active{background:#e2ecff;}
+  .ph-cat-name{font-size:17px;font-weight:800;color:var(--blue-d);}
+  .ph-cat-sub{font-size:12.5px;color:var(--mut);flex:1;min-width:0;}
+  .ph-arrow{font-size:18px;color:var(--blue);transition:transform .15s;flex:0 0 auto;width:18px;text-align:center;}
+  .ph-cat-body{padding:6px 10px 10px;}
+  .ph-sub{margin-top:6px;}
+  .ph-sub-head{display:flex;align-items:center;gap:8px;padding:10px 12px;cursor:pointer;user-select:none;
+    background:var(--blue-l);border-radius:10px;font-size:14px;font-weight:600;color:var(--text);}
+  .ph-sub-head:active{background:#e3edff;}
+  .ph-sub-head .ph-arrow{font-size:15px;}
+  .ph-sub-head span:first-child{flex:1;min-width:0;}
+  .ph-sub-body{padding:4px 2px 2px;}
+  .ph-hint{font-size:13px;color:#5a5a5a;background:#fff7e6;border:1px solid #ffe2a8;border-radius:10px;
+    padding:9px 11px;margin:8px 0 2px;line-height:1.5;}
   .big-play{width:120px;height:120px;border-radius:50%;background:var(--blue);color:#fff;font-size:42px;
     margin:18px auto;display:flex;align-items:center;justify-content:center;border:none;}
   .field{margin:14px 0;}
@@ -421,7 +439,7 @@
 
         <!-- 音标面板 -->
         <div id="phonics-panel" class="pos-panel" style="display:none">
-          <div class="muted" style="margin:6px 0 8px">每个音标配口型图 + 示例词，点「🔊 听发音」听清晰的单词示例；也可一键把全部音标串起来朗读。</div>
+          <div class="muted" style="margin:6px 0 8px">音标分 <b>元音</b> 和 <b>辅音</b> 两大类。先点开「🔤 元音」学单元音，再展开双元音看扩展；辅音可单独点开。每张卡配口型图 + 清晰单词示例，可一键串读全部。</div>
           <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
             <button id="phonics-readall" class="pos-play" style="flex:1;min-width:160px;background:var(--green)">🔊 一键朗读全部音标</button>
             <button id="phonics-stop" class="pos-play" style="flex:0 0 auto;background:#888">⏹ 停止</button>

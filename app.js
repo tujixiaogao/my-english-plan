@@ -1120,20 +1120,19 @@
     { s: "j", g: "辅音", m: "嘴角向两边咧，像“衣”的起始。", ex: [["yes", "jes", "是"], ["you", "juː", "你"]], r: 0.05, o: 0.2, tongue: false }
   ];
   function renderPhonics() {
-    var html = "", lastG = "";
-    PHONICS.forEach(function (p, idx) {
-      var groupOpen = (p.g !== lastG);
-      if (groupOpen) {
-        if (lastG !== "") html += '</div>';
-        html += '<div class="ph-group"><div class="ph-group-title">' + esc(p.g) + '</div>';
-        lastG = p.g;
-      }
+    function isVowel(p) { return p.g === "单元音" || p.g === "双元音"; }
+    var vowel = PHONICS.filter(isVowel);
+    var cons = PHONICS.filter(function (p) { return !isVowel(p); });
+    var mono = vowel.filter(function (p) { return p.g === "单元音"; });
+    var diph = vowel.filter(function (p) { return p.g === "双元音"; });
+
+    function card(p) {
+      var idx = PHONICS.indexOf(p);
       var exHtml = "";
       p.ex.forEach(function (e) {
         exHtml += '<span class="ph-ex" data-word="' + esc(e[0]) + '">🔊 ' + esc(e[0]) + ' <i>/' + esc(e[1]) + '/</i> ' + esc(e[2]) + '</span>';
       });
-      html +=
-        '<div class="ph-card" id="ph-card-' + idx + '">' +
+      return '<div class="ph-card" id="ph-card-' + idx + '">' +
           '<div class="ph-mouth">' + mouthSvg(p.r, p.o, p.tongue) + '</div>' +
           '<div class="ph-body">' +
             '<div class="ph-sym">/' + esc(p.s) + '/</div>' +
@@ -1142,9 +1141,55 @@
             '<button class="pos-play ph-play" data-ph="' + idx + '">🔊 听发音（读示例词）</button>' +
           '</div>' +
         '</div>';
-    });
-    if (lastG !== "") html += '</div>';
+    }
+    function cardsHtml(arr) { return arr.map(card).join(""); }
+
+    var html = "";
+    // ===== 元音大类（默认展开）=====
+    html +=
+      '<div class="ph-cat ph-cat-open" data-cat="vowel">' +
+        '<div class="ph-cat-head" data-toggle="cat" data-cat="vowel">' +
+          '<span class="ph-cat-name">🔤 元音 Vowels</span>' +
+          '<span class="ph-cat-sub">共 ' + vowel.length + ' 个 · 气流不受阻碍，声音响亮能拉长</span>' +
+          '<span class="ph-arrow">▾</span>' +
+        '</div>' +
+        '<div class="ph-cat-body">' +
+          // 单元音（默认展开）
+          '<div class="ph-sub ph-sub-open" data-sub="mono">' +
+            '<div class="ph-sub-head" data-toggle="sub" data-sub="mono">' +
+              '<span>单元音 · 口型固定、舌头不动的单纯音（' + mono.length + ' 个）</span>' +
+              '<span class="ph-arrow">▾</span>' +
+            '</div>' +
+            '<div class="ph-sub-body">' + cardsHtml(mono) + '</div>' +
+          '</div>' +
+          // 双元音（默认折叠，扩展提示）
+          '<div class="ph-sub" data-sub="diph">' +
+            '<div class="ph-sub-head" data-toggle="sub" data-sub="diph">' +
+              '<span>双元音 · 由两个单元音快速滑动组合而成（' + diph.length + ' 个）→ 点开看扩展</span>' +
+              '<span class="ph-arrow">▸</span>' +
+            '</div>' +
+            '<div class="ph-sub-body" style="display:none">' + cardsHtml(diph) +
+              '<div class="ph-hint">💡 双元音 = 单元音① 滑动到 单元音②，如 /eɪ/ = /e/ → /ɪ/。先把上面的单元音练熟，这里就水到渠成。</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    // ===== 辅音大类（默认折叠）=====
+    html +=
+      '<div class="ph-cat" data-cat="cons">' +
+        '<div class="ph-cat-head" data-toggle="cat" data-cat="cons">' +
+          '<span class="ph-cat-name">🔠 辅音 Consonants</span>' +
+          '<span class="ph-cat-sub">共 ' + cons.length + ' 个 · 气流受唇/舌/齿阻碍，大多不响亮</span>' +
+          '<span class="ph-arrow">▸</span>' +
+        '</div>' +
+        '<div class="ph-cat-body" style="display:none">' + cardsHtml(cons) +
+          '<div class="ph-hint">💡 辅音是气流受阻碍发出的音。爆破音（p b t d k g）、摩擦音（f v s z 等）、鼻音（m n ŋ）各有诀窍，点示例词听辨。</div>' +
+        '</div>' +
+      '</div>';
+
     el("phonics-list").innerHTML = html;
+
+    // 朗读按钮 + 示例词点击
     var btns = el("phonics-list").querySelectorAll(".ph-play");
     for (var i = 0; i < btns.length; i++) {
       btns[i].addEventListener("click", function () {
@@ -1156,6 +1201,20 @@
     for (var k = 0; k < exs.length; k++) {
       exs[k].addEventListener("click", function () {
         playPhonicsWord(this.dataset.word);
+      });
+    }
+    // 大类 / 子分组 折叠展开
+    var tog = el("phonics-list").querySelectorAll("[data-toggle]");
+    for (var t = 0; t < tog.length; t++) {
+      tog[t].addEventListener("click", function () {
+        var kind = this.dataset.toggle;
+        var box = this.parentNode;
+        var body = box.querySelector(kind === "cat" ? ".ph-cat-body" : ".ph-sub-body");
+        var arrow = this.querySelector(".ph-arrow");
+        var openCls = kind === "cat" ? "ph-cat-open" : "ph-sub-open";
+        var isOpen = box.classList.toggle(openCls);
+        if (body) body.style.display = isOpen ? "" : "none";
+        if (arrow) arrow.textContent = isOpen ? "▾" : "▸";
       });
     }
   }
@@ -1199,6 +1258,19 @@
     phonicsRunId++;
     var myRun = phonicsRunId;
     stopAudio();
+    // 朗读前展开全部大类与子分组，便于跟读看到进度
+    var cats = el("phonics-list").querySelectorAll(".ph-cat");
+    for (var c = 0; c < cats.length; c++) {
+      cats[c].classList.add("ph-cat-open");
+      var b = cats[c].querySelector(".ph-cat-body"); if (b) b.style.display = "";
+      var a = cats[c].querySelector(".ph-arrow"); if (a) a.textContent = "▾";
+    }
+    var subs = el("phonics-list").querySelectorAll(".ph-sub");
+    for (var s = 0; s < subs.length; s++) {
+      subs[s].classList.add("ph-sub-open");
+      var sb = subs[s].querySelector(".ph-sub-body"); if (sb) sb.style.display = "";
+      var sa = subs[s].querySelector(".ph-arrow"); if (sa) sa.textContent = "▾";
+    }
     if (state.settings.keepAwake) requestWakeLock();
     var i = 0;
     function alive() { return myRun === phonicsRunId; }
