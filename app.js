@@ -329,6 +329,8 @@
     return a;
   }
   function genPassage() {
+    var mode = el("passage-source") ? el("passage-source").value : "all";
+    if (mode === "friends") { renderFriendsPassage(); return; }
     var usable = passagePool();
     if (!usable.length) {
       el("passage-list").innerHTML = '<div class="msg">该来源暂无可生成短文的词（需名词/动词/形容词/副词）。先去学习或加入个人库吧。</div>';
@@ -363,6 +365,78 @@
     });
     el("passage-list").innerHTML = html;
     el("passage-status").textContent = "已生成 " + sents.length + " 句 · 点「🔊 朗读全文」逐词听";
+  }
+  // ---------- 老友记 S01E01 分角色剧本 ----------
+  function renderFriendsPassage() {
+    // 设置朗读数据源（整集按行顺序），供「朗读全文」使用
+    passageSentences = (typeof FRIENDS_LINES !== "undefined") ? FRIENDS_LINES.map(function (l) { return { en: l.en, w: null }; }) : [];
+    // 合并相邻同角色的行，便于阅读
+    var blocks = [];
+    (FRIENDS_LINES || []).forEach(function (l) {
+      var last = blocks[blocks.length - 1];
+      if (last && last.who === l.who) last.lines.push(l.en);
+      else blocks.push({ who: l.who, lines: [l.en] });
+    });
+    var html = "";
+    blocks.forEach(function (b, bi) {
+      var color = (typeof FRIENDS_CHAR_COLOR !== "undefined" && FRIENDS_CHAR_COLOR[b.who]) || "#b2bec3";
+      html += '<div class="fr-block" style="margin:12px 0">';
+      html += '<div style="font-weight:700;color:' + color + ';font-size:13px;margin-bottom:2px">' + esc(b.who) + '</div>';
+      b.lines.forEach(function (t, ti) {
+        var gid = bi + "-" + ti;
+        html += '<div class="fr-line" data-en="' + esc(t) + '" data-gid="' + gid + '" style="border-left-color:' + color + '">' +
+          '<span class="fr-text">' + esc(t) + '</span>' +
+          '<span class="fr-speak">🔊</span>' +
+          '</div>';
+      });
+      html += '</div>';
+    });
+    el("passage-list").innerHTML = html;
+    el("passage-status").textContent = "共 " + (FRIENDS_LINES ? FRIENDS_LINES.length : 0) + " 句 · 点任意一句可单独朗读，或点「🔊 朗读全文」连播";
+    if (typeof FRIENDS_META !== "undefined") el("friends-meta").textContent = FRIENDS_META.title + "（" + FRIENDS_META.source + "）";
+    // 绑定单行点击朗读
+    var frLines = el("passage-list").querySelectorAll(".fr-line");
+    for (var i = 0; i < frLines.length; i++) {
+      frLines[i].addEventListener("click", function () {
+        if (passagePlaying) stopPassage();
+        speakEn(this.getAttribute("data-en"));
+        var self = this;
+        self.classList.add("playing");
+        setTimeout(function () { self.classList.remove("playing"); }, 1200);
+      });
+    }
+    renderFriendsVocab();
+  }
+  function renderFriendsVocab() {
+    var wrap = el("friends-wrap"); if (!wrap) return;
+    wrap.style.display = "block";
+    var vocab = (typeof FRIENDS_VOCAB !== "undefined") ? FRIENDS_VOCAB : [];
+    var filter = el("friends-vocab-filter") ? el("friends-vocab-filter").value : "all";
+    var q = (el("friends-vocab-search") ? el("friends-vocab-search").value : "").trim().toLowerCase();
+    var list = vocab.filter(function (v) {
+      if (filter === "known" && !v.known) return false;
+      if (filter === "new" && v.known) return false;
+      if (q && v.w.indexOf(q) < 0) return false;
+      return true;
+    });
+    var html = "";
+    list.slice(0, 400).forEach(function (v) {  // 最多渲染 400 个，避免卡顿
+      html += '<span class="vocab-chip' + (v.known ? '' : ' new') + '" data-w="' + esc(v.w) + '">' +
+        esc(v.w) + '<span class="vn">' + v.n + '</span>' +
+        (v.known ? '' : '<span class="vtag">新</span>') + '</span>';
+    });
+    el("friends-vocab").innerHTML = html || '<span class="muted">无匹配单词</span>';
+    el("friends-vocab-count").textContent = list.length + " / " + vocab.length + " 词";
+    var chips = el("friends-vocab").querySelectorAll(".vocab-chip");
+    for (var i = 0; i < chips.length; i++) {
+      chips[i].addEventListener("click", function () {
+        var w = this.getAttribute("data-w");
+        sayEnWord(w, null);  // 优先离线音频，否则浏览器 TTS
+        this.style.borderColor = "var(--blue)";
+        var self = this;
+        setTimeout(function () { self.style.borderColor = ""; }, 600);
+      });
+    }
   }
   function buildPassageTokens() {
     var toks = [];
@@ -436,7 +510,9 @@
     if (name === "stats") renderStats();
     if (name === "pos") renderPos();
     if (name === "passage") {
-      if (!passageSentences.length) genPassage();
+      var isFr = el("passage-source") && el("passage-source").value === "friends";
+      var fw2 = el("friends-wrap"); if (fw2) fw2.style.display = isFr ? "block" : "none";
+      if (!passageSentences.length || isFr) genPassage();
     } else if (passagePlaying) {
       stopPassage();
     }
@@ -1725,8 +1801,18 @@
     // 小短文复习
     el("passage-gen").addEventListener("click", genPassage);
     el("passage-play").addEventListener("click", playPassage);
-    el("passage-source").addEventListener("change", genPassage);
+    el("passage-source").addEventListener("change", function () {
+      var isFriends = this.value === "friends";
+      var fw = el("friends-wrap"); if (fw) fw.style.display = isFriends ? "block" : "none";
+      if (!isFriends) { var v = el("friends-vocab"); if (v) v.innerHTML = ""; }
+      genPassage();
+    });
     el("passage-count").addEventListener("change", genPassage);
+    // 老友记词表筛选/搜索
+    var fvf = el("friends-vocab-filter");
+    if (fvf) fvf.addEventListener("change", renderFriendsVocab);
+    var fvs = el("friends-vocab-search");
+    if (fvs) fvs.addEventListener("input", renderFriendsVocab);
     var pzt = el("passage-zh-toggle");
     if (pzt) {
       var pzOn = state.settings.passageShowZh !== false;

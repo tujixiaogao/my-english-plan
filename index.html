@@ -200,6 +200,20 @@
   .ps-en .focus{background:var(--amber-l);color:var(--amber);padding:1px 5px;border-radius:6px;}
   .ps-zh{font-size:15px;color:var(--green);margin-top:6px;line-height:1.5;word-break:break-word;}
   .ps-zh.hidden{display:none;}
+  /* 老友记分角色剧本 */
+  .fr-line{display:flex;gap:8px;padding:7px 10px;margin:6px 0;border-left:5px solid #b2bec3;border-radius:0 10px 10px 0;background:var(--card);align-items:baseline;cursor:pointer;line-height:1.5;word-break:break-word;}
+  .fr-line:hover{background:var(--blue-l);}
+  .fr-line.playing{box-shadow:0 0 0 2px var(--blue);}
+  .fr-who{flex:0 0 92px;font-weight:700;font-size:13px;text-align:right;color:#555;white-space:nowrap;}
+  .fr-text{font-size:16px;color:var(--text);flex:1;}
+  .fr-line .fr-speak{margin-left:4px;opacity:.5;font-size:13px;}
+  /* 词表 */
+  .vocab-chip{display:inline-block;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:3px 10px;margin:3px 4px 3px 0;font-size:14px;cursor:pointer;color:var(--text);}
+  .vocab-chip:hover{border-color:var(--blue);}
+  .vocab-chip.new{background:#fff3f3;border-color:#ffd0d0;color:#c0392b;}
+  .vocab-chip .vn{color:var(--mut);font-size:11px;margin-left:3px;}
+  .vocab-chip .vtag{font-size:10px;margin-left:3px;padding:0 4px;border-radius:8px;background:#eee;color:#888;}
+  .vocab-chip.new .vtag{background:#fde2e2;color:#c0392b;}
 
   /* 底部导航 */
   nav{display:flex;background:var(--card);border-top:1px solid var(--line);}
@@ -382,6 +396,7 @@
               <option value="wl:senior">高中英语</option>
               <option value="wl:cet4">英语四级</option>
               <option value="wl:all">全部列表合并（去重）</option>
+              <option value="friends">🎬 老友记 S01E01（分角色）</option>
             </select>
           </div>
           <div class="field" style="margin:0">
@@ -403,6 +418,22 @@
         <div class="center muted" id="passage-status" style="margin-top:8px">点「生成小短文」开始</div>
       </div>
       <div id="passage-list"></div>
+      <!-- 老友记模式：分角色剧本 + 去重词表（仅该模式显示） -->
+      <div id="friends-wrap" class="card-box" style="margin-top:14px;display:none">
+        <div style="font-weight:600;margin-bottom:2px">🎬 老友记 S01E01 · 分角色剧本</div>
+        <div class="muted" style="margin-bottom:8px" id="friends-meta"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">
+          <label class="ab-chk" style="margin:0">词表筛选</label>
+          <select id="friends-vocab-filter" style="flex:0 0 auto">
+            <option value="all" selected>全部词（去重）</option>
+            <option value="known">仅 850 已学词</option>
+            <option value="new">仅新词（不在 850）</option>
+          </select>
+          <input type="text" id="friends-vocab-search" placeholder="搜索单词…" style="flex:1;min-width:120px">
+          <span class="muted" id="friends-vocab-count" style="white-space:nowrap"></span>
+        </div>
+        <div id="friends-vocab" style="line-height:2"></div>
+      </div>
     </section>
 
     <!-- 统计 -->
@@ -503,6 +534,7 @@
 <script src="ex_zh.js"></script>
 <script src="phonics_audio.js"></script>
 <script src="phonics_ph_audio.js"></script>
+<script src="friends_s01e01.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
