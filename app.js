@@ -1133,12 +1133,14 @@
         exHtml += '<span class="ph-ex" data-word="' + esc(e[0]) + '">🔊 ' + esc(e[0]) + ' <i>/' + esc(e[1]) + '/</i> ' + esc(e[2]) + '</span>';
       });
       return '<div class="ph-card" id="ph-card-' + idx + '">' +
-          '<div class="ph-mouth">' + mouthSvg(p.r, p.o, p.tongue) + '</div>' +
           '<div class="ph-body">' +
             '<div class="ph-sym">/' + esc(p.s) + '/</div>' +
             '<div class="ph-mouth-txt">👄 ' + esc(p.m) + '</div>' +
+            '<div class="ph-btns">' +
+              '<button class="pos-play ph-play ph-play-ph" data-ph-sym="' + esc(p.s) + '">🔊 听音标</button>' +
+              '<button class="pos-play ph-play ph-play-ex" data-ph="' + idx + '">🔊 听示例词</button>' +
+            '</div>' +
             '<div class="ph-exs">' + exHtml + '</div>' +
-            '<button class="pos-play ph-play" data-ph="' + idx + '">🔊 听发音（读示例词）</button>' +
           '</div>' +
         '</div>';
     }
@@ -1189,12 +1191,19 @@
 
     el("phonics-list").innerHTML = html;
 
-    // 朗读按钮 + 示例词点击
-    var btns = el("phonics-list").querySelectorAll(".ph-play");
-    for (var i = 0; i < btns.length; i++) {
-      btns[i].addEventListener("click", function () {
+    // 「听示例词」按钮
+    var exBtns = el("phonics-list").querySelectorAll(".ph-play-ex");
+    for (var i = 0; i < exBtns.length; i++) {
+      exBtns[i].addEventListener("click", function () {
         var p = PHONICS[parseInt(this.dataset.ph, 10)];
         if (p) playPhonics(p);
+      });
+    }
+    // 「听音标」按钮（朗读音标本身）
+    var phBtns = el("phonics-list").querySelectorAll(".ph-play-ph");
+    for (var pi = 0; pi < phBtns.length; pi++) {
+      phBtns[pi].addEventListener("click", function () {
+        playPhoneme(this.dataset.phSym);
       });
     }
     var exs = el("phonics-list").querySelectorAll(".ph-ex");
@@ -1224,6 +1233,13 @@
     var url = (typeof PHONICS_AUDIO !== "undefined" && PHONICS_AUDIO[key]) ? PHONICS_AUDIO[key] : null;
     if (url) { playMp3(url, cb); }
     else { speakEn(word, cb); }
+  }
+  // 朗读音标本身：优先离线音标音频，否则回退浏览器 TTS
+  function playPhoneme(sym, cb) {
+    var key = sym || "";
+    var url = (typeof PHONICS_PH_AUDIO !== "undefined" && PHONICS_PH_AUDIO[key]) ? PHONICS_PH_AUDIO[key] : null;
+    if (url) { playMp3(url, cb); }
+    else { speakEn(sym, cb); }
   }
   function playPhonics(p) {
     if (!HAS_AUDIO && !("speechSynthesis" in window)) { alert("当前环境无法播放语音"); return; }
@@ -1278,18 +1294,21 @@
       if (!alive()) return;
       if (i >= PHONICS.length) { finish(); return; }
       var p = PHONICS[i];
-      el("phonics-status").textContent = "正在朗读 (" + (i + 1) + "/" + PHONICS.length + ")：/" + p.s + "/  " + p.ex.map(function (e) { return e[0]; }).join("、");
+      el("phonics-status").textContent = "正在朗读音标 (" + (i + 1) + "/" + PHONICS.length + ")：/" + p.s + "/  " + p.ex.map(function (e) { return e[0]; }).join("、");
       var cards = el("phonics-list").querySelectorAll(".ph-card");
       for (var c = 0; c < cards.length; c++) cards[c].classList.remove("playing");
       var card = el("ph-card-" + i); if (card) card.classList.add("playing");
-      var j = 0;
-      function nextWord() {
-        if (!alive()) return;
-        if (j >= p.ex.length) { i++; nextPh(); return; }
-        var word = p.ex[j][0]; j++;
-        playPhonicsWord(word, function () { nextWord(); });
-      }
-      nextWord();
+      // 先读音标本身，再跟读示例词
+      playPhoneme(p.s, function () {
+        var j = 0;
+        function nextWord() {
+          if (!alive()) return;
+          if (j >= p.ex.length) { i++; nextPh(); return; }
+          var word = p.ex[j][0]; j++;
+          playPhonicsWord(word, function () { nextWord(); });
+        }
+        nextWord();
+      });
     }
     function finish() {
       if (!alive()) return;

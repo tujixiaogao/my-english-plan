@@ -135,20 +135,21 @@
   /* 音标卡片 */
   .ph-group{margin-top:6px;}
   .ph-group-title{font-size:13px;font-weight:700;color:var(--mut);margin:12px 0 4px;letter-spacing:1px;}
-  .ph-card{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin:8px 0;align-items:stretch;}
+  .ph-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin:8px 0;}
   .ph-card.playing{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-l);}
-  .ph-mouth{flex:0 0 96px;width:96px;background:var(--blue-l);border-radius:12px;display:flex;align-items:center;justify-content:center;padding:6px;}
-  .ph-mouth svg{width:100%;height:84px;}
-  .ph-body{flex:1;min-width:0;}
-  .ph-sym{font-size:24px;font-weight:700;color:var(--blue-d);font-family:Georgia,"Times New Roman",serif;}
+  .ph-body{min-width:0;}
+  .ph-sym{font-size:32px;font-weight:800;color:var(--blue-d);font-family:Georgia,"Times New Roman",serif;letter-spacing:1px;}
   .ph-mouth-txt{font-size:13px;color:#444;line-height:1.5;margin-top:4px;}
-  .ph-exs{margin-top:6px;display:flex;flex-direction:column;gap:3px;}
+  .ph-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .ph-exs{margin-top:8px;display:flex;flex-direction:column;gap:3px;}
   .ph-ex{font-size:14px;color:var(--text);}
   .ph-ex i{color:var(--mut);font-style:normal;font-size:13px;}
   .ph-ex{cursor:pointer;padding:3px 6px;border-radius:8px;background:var(--blue-l);border:1px solid transparent;transition:background .15s,border-color .15s;display:inline-block;}
   .ph-ex:hover{background:#e3edff;border-color:var(--blue);}
   .ph-ex:active{transform:scale(.97);}
-  .ph-play{margin-top:8px;font-size:14px;padding:10px;}
+  .ph-play{margin-top:0;font-size:14px;padding:10px;flex:1;min-width:130px;}
+  .ph-play-ph{background:var(--blue);color:#fff;}
+  .ph-play-ex{background:var(--blue-l);color:var(--blue-d);}
   /* 音标分层折叠：大类 / 子分组 */
   .ph-cat{margin:10px 0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card);}
   .ph-cat-head{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none;
@@ -439,7 +440,7 @@
 
         <!-- 音标面板 -->
         <div id="phonics-panel" class="pos-panel" style="display:none">
-          <div class="muted" style="margin:6px 0 8px">音标分 <b>元音</b> 和 <b>辅音</b> 两大类。先点开「🔤 元音」学单元音，再展开双元音看扩展；辅音可单独点开。每张卡配口型图 + 清晰单词示例，可一键串读全部。</div>
+          <div class="muted" style="margin:6px 0 8px">音标分 <b>元音</b> 和 <b>辅音</b> 两大类。先点开「🔤 元音」学单元音，再展开双元音看扩展；辅音可单独点开。每张卡点「🔊 听音标」直接听音素本身，「🔊 听示例词」听单词例子，也可一键串读全部音标。</div>
           <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
             <button id="phonics-readall" class="pos-play" style="flex:1;min-width:160px;background:var(--green)">🔊 一键朗读全部音标</button>
             <button id="phonics-stop" class="pos-play" style="flex:0 0 auto;background:#888">⏹ 停止</button>
@@ -489,6 +490,7 @@
 <script src="wordlists.js"></script>
 <script src="ex_zh.js"></script>
 <script src="phonics_audio.js"></script>
+<script src="phonics_ph_audio.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

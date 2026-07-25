@@ -4,6 +4,7 @@
 __pycache__/
 venv/
 venv_pos/
+tools/
 *.log
 ck.txt
 _workbuddy/

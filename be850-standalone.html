@@ -135,20 +135,21 @@
   /* 音标卡片 */
   .ph-group{margin-top:6px;}
   .ph-group-title{font-size:13px;font-weight:700;color:var(--mut);margin:12px 0 4px;letter-spacing:1px;}
-  .ph-card{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin:8px 0;align-items:stretch;}
+  .ph-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin:8px 0;}
   .ph-card.playing{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-l);}
-  .ph-mouth{flex:0 0 96px;width:96px;background:var(--blue-l);border-radius:12px;display:flex;align-items:center;justify-content:center;padding:6px;}
-  .ph-mouth svg{width:100%;height:84px;}
-  .ph-body{flex:1;min-width:0;}
-  .ph-sym{font-size:24px;font-weight:700;color:var(--blue-d);font-family:Georgia,"Times New Roman",serif;}
+  .ph-body{min-width:0;}
+  .ph-sym{font-size:32px;font-weight:800;color:var(--blue-d);font-family:Georgia,"Times New Roman",serif;letter-spacing:1px;}
   .ph-mouth-txt{font-size:13px;color:#444;line-height:1.5;margin-top:4px;}
-  .ph-exs{margin-top:6px;display:flex;flex-direction:column;gap:3px;}
+  .ph-btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .ph-exs{margin-top:8px;display:flex;flex-direction:column;gap:3px;}
   .ph-ex{font-size:14px;color:var(--text);}
   .ph-ex i{color:var(--mut);font-style:normal;font-size:13px;}
   .ph-ex{cursor:pointer;padding:3px 6px;border-radius:8px;background:var(--blue-l);border:1px solid transparent;transition:background .15s,border-color .15s;display:inline-block;}
   .ph-ex:hover{background:#e3edff;border-color:var(--blue);}
   .ph-ex:active{transform:scale(.97);}
-  .ph-play{margin-top:8px;font-size:14px;padding:10px;}
+  .ph-play{margin-top:0;font-size:14px;padding:10px;flex:1;min-width:130px;}
+  .ph-play-ph{background:var(--blue);color:#fff;}
+  .ph-play-ex{background:var(--blue-l);color:var(--blue-d);}
   /* 音标分层折叠：大类 / 子分组 */
   .ph-cat{margin:10px 0;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card);}
   .ph-cat-head{display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;user-select:none;
@@ -439,7 +440,7 @@
 
         <!-- 音标面板 -->
         <div id="phonics-panel" class="pos-panel" style="display:none">
-          <div class="muted" style="margin:6px 0 8px">音标分 <b>元音</b> 和 <b>辅音</b> 两大类。先点开「🔤 元音」学单元音，再展开双元音看扩展；辅音可单独点开。每张卡配口型图 + 清晰单词示例，可一键串读全部。</div>
+          <div class="muted" style="margin:6px 0 8px">音标分 <b>元音</b> 和 <b>辅音</b> 两大类。先点开「🔤 元音」学单元音，再展开双元音看扩展；辅音可单独点开。每张卡点「🔊 听音标」直接听音素本身，「🔊 听示例词」听单词例子，也可一键串读全部音标。</div>
           <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
             <button id="phonics-readall" class="pos-play" style="flex:1;min-width:160px;background:var(--green)">🔊 一键朗读全部音标</button>
             <button id="phonics-stop" class="pos-play" style="flex:0 0 auto;background:#888">⏹ 停止</button>
@@ -11996,6 +11997,54 @@ var PHONICS_AUDIO = {
   "you": "audio/phonics/you.mp3"
 };
 </script>
+<script>// 自动生成：44 个音标的孤立音素离线音频映射（键为音标符号，无斜杠）
+var PHONICS_PH_AUDIO = {
+  "iː": "audio/phonics/ph_0.mp3",
+  "ɪ": "audio/phonics/ph_1.mp3",
+  "e": "audio/phonics/ph_2.mp3",
+  "æ": "audio/phonics/ph_3.mp3",
+  "ɜː": "audio/phonics/ph_4.mp3",
+  "ə": "audio/phonics/ph_5.mp3",
+  "ɔː": "audio/phonics/ph_6.mp3",
+  "ɒ": "audio/phonics/ph_7.mp3",
+  "uː": "audio/phonics/ph_8.mp3",
+  "ʊ": "audio/phonics/ph_9.mp3",
+  "ɑː": "audio/phonics/ph_10.mp3",
+  "ʌ": "audio/phonics/ph_11.mp3",
+  "eɪ": "audio/phonics/ph_12.mp3",
+  "aɪ": "audio/phonics/ph_13.mp3",
+  "ɔɪ": "audio/phonics/ph_14.mp3",
+  "aʊ": "audio/phonics/ph_15.mp3",
+  "əʊ": "audio/phonics/ph_16.mp3",
+  "ɪə": "audio/phonics/ph_17.mp3",
+  "eə": "audio/phonics/ph_18.mp3",
+  "ʊə": "audio/phonics/ph_19.mp3",
+  "p": "audio/phonics/ph_20.mp3",
+  "b": "audio/phonics/ph_21.mp3",
+  "t": "audio/phonics/ph_22.mp3",
+  "d": "audio/phonics/ph_23.mp3",
+  "k": "audio/phonics/ph_24.mp3",
+  "g": "audio/phonics/ph_25.mp3",
+  "f": "audio/phonics/ph_26.mp3",
+  "v": "audio/phonics/ph_27.mp3",
+  "θ": "audio/phonics/ph_28.mp3",
+  "ð": "audio/phonics/ph_29.mp3",
+  "s": "audio/phonics/ph_30.mp3",
+  "z": "audio/phonics/ph_31.mp3",
+  "ʃ": "audio/phonics/ph_32.mp3",
+  "ʒ": "audio/phonics/ph_33.mp3",
+  "h": "audio/phonics/ph_34.mp3",
+  "tʃ": "audio/phonics/ph_35.mp3",
+  "dʒ": "audio/phonics/ph_36.mp3",
+  "m": "audio/phonics/ph_37.mp3",
+  "n": "audio/phonics/ph_38.mp3",
+  "ŋ": "audio/phonics/ph_39.mp3",
+  "l": "audio/phonics/ph_40.mp3",
+  "r": "audio/phonics/ph_41.mp3",
+  "w": "audio/phonics/ph_42.mp3",
+  "j": "audio/phonics/ph_43.mp3",
+};
+</script>
 <script>/* Basic English 850 · 学习应用逻辑 */
 (function () {
   "use strict";
@@ -13131,12 +13180,14 @@ var PHONICS_AUDIO = {
         exHtml += '<span class="ph-ex" data-word="' + esc(e[0]) + '">🔊 ' + esc(e[0]) + ' <i>/' + esc(e[1]) + '/</i> ' + esc(e[2]) + '</span>';
       });
       return '<div class="ph-card" id="ph-card-' + idx + '">' +
-          '<div class="ph-mouth">' + mouthSvg(p.r, p.o, p.tongue) + '</div>' +
           '<div class="ph-body">' +
             '<div class="ph-sym">/' + esc(p.s) + '/</div>' +
             '<div class="ph-mouth-txt">👄 ' + esc(p.m) + '</div>' +
+            '<div class="ph-btns">' +
+              '<button class="pos-play ph-play ph-play-ph" data-ph-sym="' + esc(p.s) + '">🔊 听音标</button>' +
+              '<button class="pos-play ph-play ph-play-ex" data-ph="' + idx + '">🔊 听示例词</button>' +
+            '</div>' +
             '<div class="ph-exs">' + exHtml + '</div>' +
-            '<button class="pos-play ph-play" data-ph="' + idx + '">🔊 听发音（读示例词）</button>' +
           '</div>' +
         '</div>';
     }
@@ -13187,12 +13238,19 @@ var PHONICS_AUDIO = {
 
     el("phonics-list").innerHTML = html;
 
-    // 朗读按钮 + 示例词点击
-    var btns = el("phonics-list").querySelectorAll(".ph-play");
-    for (var i = 0; i < btns.length; i++) {
-      btns[i].addEventListener("click", function () {
+    // 「听示例词」按钮
+    var exBtns = el("phonics-list").querySelectorAll(".ph-play-ex");
+    for (var i = 0; i < exBtns.length; i++) {
+      exBtns[i].addEventListener("click", function () {
         var p = PHONICS[parseInt(this.dataset.ph, 10)];
         if (p) playPhonics(p);
+      });
+    }
+    // 「听音标」按钮（朗读音标本身）
+    var phBtns = el("phonics-list").querySelectorAll(".ph-play-ph");
+    for (var pi = 0; pi < phBtns.length; pi++) {
+      phBtns[pi].addEventListener("click", function () {
+        playPhoneme(this.dataset.phSym);
       });
     }
     var exs = el("phonics-list").querySelectorAll(".ph-ex");
@@ -13222,6 +13280,13 @@ var PHONICS_AUDIO = {
     var url = (typeof PHONICS_AUDIO !== "undefined" && PHONICS_AUDIO[key]) ? PHONICS_AUDIO[key] : null;
     if (url) { playMp3(url, cb); }
     else { speakEn(word, cb); }
+  }
+  // 朗读音标本身：优先离线音标音频，否则回退浏览器 TTS
+  function playPhoneme(sym, cb) {
+    var key = sym || "";
+    var url = (typeof PHONICS_PH_AUDIO !== "undefined" && PHONICS_PH_AUDIO[key]) ? PHONICS_PH_AUDIO[key] : null;
+    if (url) { playMp3(url, cb); }
+    else { speakEn(sym, cb); }
   }
   function playPhonics(p) {
     if (!HAS_AUDIO && !("speechSynthesis" in window)) { alert("当前环境无法播放语音"); return; }
@@ -13276,18 +13341,21 @@ var PHONICS_AUDIO = {
       if (!alive()) return;
       if (i >= PHONICS.length) { finish(); return; }
       var p = PHONICS[i];
-      el("phonics-status").textContent = "正在朗读 (" + (i + 1) + "/" + PHONICS.length + ")：/" + p.s + "/  " + p.ex.map(function (e) { return e[0]; }).join("、");
+      el("phonics-status").textContent = "正在朗读音标 (" + (i + 1) + "/" + PHONICS.length + ")：/" + p.s + "/  " + p.ex.map(function (e) { return e[0]; }).join("、");
       var cards = el("phonics-list").querySelectorAll(".ph-card");
       for (var c = 0; c < cards.length; c++) cards[c].classList.remove("playing");
       var card = el("ph-card-" + i); if (card) card.classList.add("playing");
-      var j = 0;
-      function nextWord() {
-        if (!alive()) return;
-        if (j >= p.ex.length) { i++; nextPh(); return; }
-        var word = p.ex[j][0]; j++;
-        playPhonicsWord(word, function () { nextWord(); });
-      }
-      nextWord();
+      // 先读音标本身，再跟读示例词
+      playPhoneme(p.s, function () {
+        var j = 0;
+        function nextWord() {
+          if (!alive()) return;
+          if (j >= p.ex.length) { i++; nextPh(); return; }
+          var word = p.ex[j][0]; j++;
+          playPhonicsWord(word, function () { nextWord(); });
+        }
+        nextWord();
+      });
     }
     function finish() {
       if (!alive()) return;
