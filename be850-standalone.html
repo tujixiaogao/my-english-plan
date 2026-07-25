@@ -145,6 +145,9 @@
   .ph-exs{margin-top:6px;display:flex;flex-direction:column;gap:3px;}
   .ph-ex{font-size:14px;color:var(--text);}
   .ph-ex i{color:var(--mut);font-style:normal;font-size:13px;}
+  .ph-ex{cursor:pointer;padding:3px 6px;border-radius:8px;background:var(--blue-l);border:1px solid transparent;transition:background .15s,border-color .15s;display:inline-block;}
+  .ph-ex:hover{background:#e3edff;border-color:var(--blue);}
+  .ph-ex:active{transform:scale(.97);}
   .ph-play{margin-top:8px;font-size:14px;padding:10px;}
   .big-play{width:120px;height:120px;border-radius:50%;background:var(--blue);color:#fff;font-size:42px;
     margin:18px auto;display:flex;align-items:center;justify-content:center;border:none;}
@@ -418,7 +421,11 @@
 
         <!-- 音标面板 -->
         <div id="phonics-panel" class="pos-panel" style="display:none">
-          <div class="muted" style="margin:6px 0 4px">每个音标配口型图 + 示例词，点「🔊 朗读示例」听发音。</div>
+          <div class="muted" style="margin:6px 0 8px">每个音标配口型图 + 示例词，点「🔊 听发音」听清晰的单词示例；也可一键把全部音标串起来朗读。</div>
+          <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+            <button id="phonics-readall" class="pos-play" style="flex:1;min-width:160px;background:var(--green)">🔊 一键朗读全部音标</button>
+            <button id="phonics-stop" class="pos-play" style="flex:0 0 auto;background:#888">⏹ 停止</button>
+          </div>
           <div id="phonics-list"></div>
           <div class="center muted" id="phonics-status" style="margin-top:10px"></div>
         </div>
@@ -11895,6 +11902,82 @@ var WORD_LISTS = [
 </script>
 <script>const EX_ZH = ["我每天都来学校。", "她会得到一本书。", "请把笔给我。", "我们去公园。", "他会保留这笔钱。", "让他回家吧。", "我做蛋糕。", "把书放在桌子上。", "他今天看起来很高兴。", "请拿苹果。", "我想要自由。", "他们做工作。", "我有一只狗。", "她向我打招呼。", "我看到一只鸟。", "他会寄一封信。", "你现在可以离开了。", "我会回家。", "他谈论这本书。", "步行过马路。", "放学后我们玩。", "他反对这个计划。", "她坐在孩子们中间。", "他在门口。", "饭前洗净。", "球在我们之间。", "这本书是他写的。", "杯子掉了下来。", "我来自中国。", "猫在盒子里。", "脱掉你的帽子。", "这本书在桌子上。", "那只鸟飞过树。", "我们穿过大门。", "我去商店。", "鞋子在床底下。", "他上了山。", "我和你一起玩。", "他是一名教师。", "这是给您的。", "天空的颜色。", "等到雨停了。", "他比我高。", "我看到一只猫。", "狗很大。", "所有的男孩都笑了。", "你有钱吗？", "每个孩子都喜欢玩。", "她没有书。", "另一个男孩离开了。", "我吃一些面包。", "这样的狗很小。", "那辆车是红色的。", "这个苹果很甜。", "我喜欢阳光。", "他读一本书。", "你是我的朋友。", "那个人是谁？", "他和她笑了。", "我哭是因为我很难过。", "他个子小但很强壮。", "茶还是咖啡？", "如果下雨我们就留下来。", "尽管很累，他还是出去了。", "我们跳舞时她唱歌。", "你今天怎么样？", "他什么时候来？", "书在哪里？", "你为什么笑？", "他又打来电话。", "你赢过吗？", "学校很远。", "慢慢地向前走。", "请到这里来。", "商店就在附近。", "他现在就在这里。", "狗出去了。", "她还在睡觉。", "我们吃了饭然后就离开了。", "书就在那里。", "我们一起玩。", "他唱歌很好听。", "我差点就摔倒了。", "我已经吃够了。", "他甚至笑了。", "她微微一笑。", "非常感谢。", "他不在这里。", "我只有一个。", "这部电影相当不错。", "我累了所以休息吧。", "她很善良。", "我们明天出发。", "他昨天来了。", "风从北边吹来。", "南方很温暖。", "太阳从东方升起。", "西部干旱。", "请开门。", "是的，我会去。", "我今天开了一个银行账户。", "这个行为是友善且乐于助人的。", "添加既快速又简单。", "他对座位进行了调整。", "该广告在电视上播出。", "我们今天早上签署了协议。", "空气清新干净。", "水量很小。", "这个游戏是一种有趣的娱乐。", "这种动物很小。", "她的回答简短而明确。", "该设备在实验室中。", "他同意了我们。", "他们的争论非常激烈。", "她喜欢墙上的艺术品。", "攻击突然而迅速。", "他的尝试失败了。", "她注意那只狗。", "公园是一个很大的景点。", "当局制定了新规则。", "他昨天伤了背。", "平衡并不容易。", "树的根部很宽。", "他的行为并不好。", "我的信念非常坚定。", "今年出生的时间比较早。", "他吃了一点蛋糕。", "狗咬了一小口。", "地板上有血。", "他狠狠地一击。", "她的身体非常健康。", "黄铜非常闪亮。", "我午餐吃了面包。", "现在深呼吸。", "我的弟弟是一个高个子男孩。", "这座建筑很旧。", "他严重烧伤。", "爆裂声非常大。", "他的生意做得很好。", "黄油涂在面包上。", "画布非常坚固。", "她照顾婴儿。", "原因尚不清楚。", "粉笔在桌子上。", "他得到了一个很好的机会。", "变化非常大。", "布非常干净。", "煤炭又黑又脏。", "颜色是鲜红色。", "床很舒服。", "委员会今天举行会议。", "公司规模很大。", "这个比较是相当公平的。", "他轻松地赢得了比赛。", "条件不好。", "连接非常弱。", "他对狗有控制权。", "厨师做了一些面包。", "铜是一种金属。", "我复印了一份。", "软木塞来自一棵树。", "这件衬衫是棉质的。", "他咳​​嗽得很厉害。", "这个国家很大。", "盖子盖在锅上。", "裂缝在墙上。", "他信用良好。", "犯罪过程非常悲惨。", "挤压声非常响亮。", "婴儿大声哭了起来。", "电流很强。", "道路有一个急弯。", "暴风雨造成了损害。", "狗是一个危险。", "他的女儿是个女孩。", "这天天气非常晴朗。", "死者非常悲伤。", "他今天还清了债务。", "她的决定是一个很好的决定。", "角度是三十度。", "设计非常简单。", "他有一个强烈的愿望。", "战争造成了破坏。", "细节非常小。", "发展非常快。", "消化速度相当慢。", "他给出了正确的方向。", "这一发现令人惊讶。", "讨论时间很长。", "病情非常严重。", "他感到深深的厌恶。", "距离相当远。", "分配不公平。", "划分并不均等。", "他心里有一个小小的疑问。", "饮料很冷。", "驾驶是一项有用的技能。", "桌子上有灰尘。", "地球非常大。", "边缘非常锋利。", "教育非常重要。", "效果非常明显。", "最后的结果是一个惊喜。", "误差非常小。", "这次活动是一件大事。", "这是一个很好的例子。", "交流非常公平。", "它的存在是一个谜。", "扩张速度非常快。", "他有很多经验。", "专家很忙。", "事实非常清楚。", "秋天非常凉爽。", "我的家庭很大。", "我的父亲是一个高个子男人。", "狗感到深深的恐惧。", "她有一种奇怪的感觉。", "小说写得非常好。", "田野非常绿。", "战斗时间非常短。", "火非常热。", "火焰非常明亮。", "飞行非常顺利。", "这花很红。", "他完成了一次整齐的折叠。", "食物非常好。", "力量非常强大。", "形式非常简单。", "他是一个好朋友。", "前面非常干净。", "水果很甜。", "她用玻璃杯喝水。", "戒指由金制成。", "政府制定了一项新法律。", "他吃了一块谷物。", "牛吃绿草。", "他有很强的抓地力。", "一群女孩子笑了起来。", "该植物显示出快速生长。", "导游带领参观。", "船进港了。", "他们和睦相处。", "他的仇恨显而易见。", "她的听力非常好。", "天气太热了。", "他给了我帮助。", "我读过一本历史书。", "狗挖了一个洞。", "她心里还存着一个小小的希望。", "等待一小时。", "他的幽默让我们开怀大笑。", "冰很冷。", "我有一个好主意。", "他是一时冲动行事。", "有增加。", "行业快速发展。", "钢笔需要墨水。", "昆虫飞走了。", "他演奏一种乐器。", "他买了汽车保险。", "她表现出了兴趣。", "这项发明帮助了很多人。", "铁很重。", "孩子吃了果冻。", "连接被隐藏。", "旅程很漫长。", "法官大声说话。", "他跳了一大步。", "这一脚踢得很狠。", "她给了一个吻。", "知识就是力量。", "土地肥沃。", "英语是一种语言。", "他大声笑起来。", "法律是公平的。", "该管子由铅制成。", "学习需要时间。", "包是皮革的。", "我写了一封信。", "水位上升了。", "乘电梯上去。", "光线很亮。", "有一个限制。", "这件衬衫是亚麻的。", "水是液体。", "列一个清单。", "他看了一眼。", "损失令人悲伤。", "爱情是甜蜜的。", "机器声音很大。", "男人笑了。", "经理很忙。", "他留下了痕迹。", "她去了市场。", "质量很大。", "我们吃了一顿饭。", "使用措施。", "肉很新鲜。", "会议结束了。", "我失去了记忆。", "金属是冷的。", "他站在中间。", "牛奶是白色的。", "他改变了主意。", "矿井很深。", "等一下。", "雾气慢慢散去。", "他省了钱。", "这个月很忙。", "早上很平静。", "我妈妈做饭。", "动作停止了。", "山很高。", "这是一个很好的举动。", "音乐很大声。", "她的名字叫梅。", "国家太平了。", "他感到有需要。", "这个消息是个好消息。", "夜已黑了。", "噪音吵醒了我。", "他写了一张纸条。", "数量是七。", "她的观察力很敏锐。", "他提出了一个要约。", "油很滑。", "手术成功了。", "他的意见不同。", "顺序很清楚。", "该组织帮助了我们。", "装饰品很漂亮。", "主人离开了。", "页面干净、白色。", "他感到手臂疼痛。", "油漆是湿的，呈红色。", "她在纸上写着。", "这是本书的一部分。", "他用浆糊做纸。", "今天付款。", "我们希望世界和平。", "门口有一个人。", "这是个好地方。", "该植物非常绿。", "昨天我们看了一场戏。", "他读得很高兴。", "要点非常尖锐。", "毒药在杯子里。", "在鞋子上使用抛光剂。", "搬运工拎着袋子。", "书已就位。", "粉末为白色。", "他有很大的力量。", "价格太高了。", "打印非常清晰。", "过程很简单。", "农产品很新鲜。", "利润微乎其微。", "这是他的财产。", "他用散文写作。", "抗议活动是和平的。", "他用力一拉。", "惩罚是公平的。", "目的很明确。", "他用力一推。", "质量很好。", "她问了一个问题。", "雨很大。", "范围很广。", "比率很低。", "一道光芒降临。", "他的反应很快。", "读书对你有好处。", "原因不明。", "记录被打破了。", "他感到深深的悔恨。", "他们的关系很密切。", "他研究宗教。", "他是一个代表。", "她提出了一个要求。", "他赢得了我们的尊重。", "他需要休息。", "回报很大。", "节奏很慢。", "我们每天吃米饭。", "河水很深。", "路还很长。", "他吃了一个面包卷。", "房间很干净。", "他揉了揉它。", "规则很简单。", "他去跑步了。", "盐是白色的。", "沙子很热。", "秤坏了。", "他喜欢科学。", "大海是蓝色的。", "座位有人了。", "秘书很忙。", "选择范围很广。", "他了解他自己。", "她很有理智。", "仆人很友善。", "性别为男性。", "树荫很凉爽。", "他摇了摇头。", "他感到羞耻。", "震惊是巨大的。", "侧面很粗糙。", "标志是红色的。", "丝绸很柔软。", "银子有光泽。", "我姐姐还年轻。", "尺寸较小。", "天空晴朗。", "他需要睡眠。", "他滑倒了。", "坡度很陡。", "粉碎的声音很大。", "味道很甜。", "她笑了笑。", "烟雾是黑色的。", "他打了个喷嚏。", "雪是白的。", "肥皂是湿的。", "社会是复杂的。", "她儿子很高。", "歌声很欢乐。", "这是一种。", "声音很大。", "汤很热。", "空间是空的。", "舞台很大。", "开始很快。", "该声明是错误的。", "蒸汽很热。", "钢材很硬。", "他迈出了一步。", "针迹很小。", "石头很重。", "他停了下来。", "故事很短。", "他做了一个伸展运动。", "结构很旧。", "该物质是液体。", "糖是甜的。", "他提出了一个建议。", "夏天很热。", "他给予了支持。", "惊喜太大了。", "他去游泳了。", "系统是新的。", "谈话很长。", "味道是苦的。", "税收很高。", "教学是她的工作。", "他有这个倾向。", "测试很简单。", "理论很简单。", "东西坏了。", "他的想法很明确。", "雷声很大。", "时间是中午。", "罐子是空的。", "顶部是红色的。", "他轻轻一碰。", "贸易很重要。", "运输很慢。", "这个伎俩已经很老了。", "他有麻烦了。", "转弯很急。", "他扭动了一下。", "单位很小。", "用途一目了然。", "价值很高。", "他读了一首诗。", "船已满。", "景色很好。", "她的声音很轻。", "他去散步了。", "战争结束了。", "洗完了。", "浪费很多。", "水很冷。", "浪高了。", "蜡熔化了。", "路还很长。", "天气很好。", "这周很忙。", "重量很重。", "风很大。", "酒是红色的。", "冬天很冷。", "女人很善良。", "木头是干的。", "羊毛很暖和。", "这个词是新的。", "工作很辛苦。", "伤口很深。", "文字写得很清楚。", "年又新了。", "角度是九十度。", "蚂蚁在地上。", "他吃了一个红苹果。", "拱门非常古老。", "他的手臂很有力。", "军队扬长而去。", "宝宝在哭。", "她背着一个包。", "球是圆的。", "他戴着一根橡皮筋。", "盆满了。", "她做了一个篮子。", "他洗了个澡。", "床很软。", "一只蜜蜂飞过。", "铃声响起。", "她吃了一个浆果。", "小鸟会唱歌。", "刀片很锋利。", "他把木板切开。", "船很小。", "狗吃了一根骨头。", "她读了一本书。", "他穿着靴子。", "瓶子是空的。", "他打开了盒子。", "男孩很高。", "大脑至关重要。", "他使用了刹车。", "树枝折断了。", "墙是砖的。", "我们过了桥。", "她用的是刷子。", "他把桶装满了。", "灯泡很亮。", "现在按下按钮。", "她烤了一个蛋糕。", "他买了一台相机。", "我寄了一张卡片。", "购物车很旧。", "马车是黑色的。", "猫正在睡觉。", "他拉动链子。", "我们吃了奶酪。", "他的胸膛很宽阔。", "他摸了摸下巴。", "他们进入了教堂。", "请画一个圆圈。", "时钟走得很慢。", "云是白色的。", "他穿着一件外套。", "领子很干净。", "她丢了梳子。", "他把绳子绑起来。", "牛是棕色的。", "她用杯子喝水。", "窗帘是蓝色的。", "他坐在垫子上。", "狗很友善。", "她打开门。", "排水管被堵住了。", "他关上抽屉。", "她穿着一件衣服。", "一滴水落了下来。", "他的耳朵很小。", "鸡蛋是白色的。", "发动机声音很大。", "她的眼睛是蓝色的。", "他洗了脸。", "农场很大。", "羽毛很轻。", "她割伤了手指。", "鱼正在游动。", "国旗是红色的。", "地板很干净。", "一只苍蝇在嗡嗡叫。", "他的脚受伤了。", "他用的是叉子。", "那只鸡吃的是玉米。", "框架是木制的。", "花园很漂亮。", "女孩在笑。", "他丢了一只手套。", "山羊饿了。", "他瞄准了枪。", "她的头发很长。", "他用了一把锤子。", "他的手很温暖。", "她戴着一顶帽子。", "他的头很痛。", "心脏在跳动。", "他挂上了钩子。", "牛有角。", "马跑得很快。", "她去了医院。", "房子是白色的。", "岛很小。", "她戴着珠宝。", "水壶正在沸腾。", "他丢了钥匙。", "他的膝盖很痛。", "刀很锋利。", "他打了一个结。", "叶子是绿色的。", "她的腿断了。", "图书馆很安静。", "画一条直线。", "她的嘴唇被割伤了。", "他打开了锁。", "她读了地图。", "他点燃了一根火柴。", "猴子很有趣。", "月亮很亮。", "他的嘴里塞满了东西。", "肌肉酸痛。", "他击中了要害。", "她的脖子很长。", "她穿针线。", "神经受损。", "他撒网。", "他的鼻子是红色的。", "她吃了一颗坚果。", "他离开了办公室。", "她剥了橙子皮。", "烤箱很热。", "他寄了一个包裹。", "她用钢笔写字。", "他用的是铅笔。", "画面很好看。", "猪是粉红色的。", "她用了一根别针。", "管道漏水。", "飞机飞得很高。", "他把盘子掉了。", "犁已经旧了。", "他把它放进口袋里。", "锅满了。", "我午餐吃了一个土豆。", "监狱很旧了。", "他用水泵来取水。", "火车在铁轨上。", "一只老鼠跑过地板。", "她帮我保留了收据。", "他给了她一枚金戒指。", "渔夫拿着一根鱼竿。", "屋顶是木头做的。", "这棵树有很长的根。", "船挂着白帆。", "孩子们每天都去上学。", "她用剪刀剪纸。", "他小心翼翼地转动螺丝。", "我在土壤里种下了一颗种子。", "羊吃的是青草。", "这本书在书架上。", "船在海上航行。", "他穿着一件干净的衬衫。", "我的鞋子在床底下。", "宝宝的皮肤很软。", "她买了一条红裙子。", "一条蛇躺在阳光下。", "一只袜子又丢了。", "他用铁锹挖。", "她用海绵清洁。", "他用勺子喝汤。", "春天带来温暖的天气。", "瓷砖是正方形的。", "我在上面贴了邮票。", "一颗星星在夜里闪烁。", "他在车站等候。", "这朵花有一个绿色的茎。", "他找到了一根长棍子。", "她穿着一只羊毛袜。", "我的胃感觉很饱。", "街道宽阔、干净。", "阳光非常明媚。", "书在桌子上。", "狗摇着尾巴。", "她用红线缝衣服。", "他今天喉咙痛。", "她吮吸着拇指。", "我丢了火车票。", "他踩到了我的脚趾。", "孩子咬到了舌头。", "他刷牙了。", "我们住在一个小镇。", "火车马上就要来了。", "她端着满满一托盘。", "这棵树很高。", "他穿着旧裤子。", "她打开伞。", "墙壁被漆成白色。", "他看了看手表。", "车轮转得很快。", "他抽响了长鞭。", "男人吹了一声口哨。", "她关上了窗户。", "这只鸟有一只翅膀。", "电线很细。", "一条虫子在土上爬行。", "我在商店买了牛奶。", "这男孩会游泳。", "酸味很浓。", "男人现在很生气。", "门是自动的。", "她是一个美丽的女孩。", "猫是黑色的。", "水沸腾了。", "阳光明媚。", "杯子坏了。", "这只狗是棕色的。", "这本书很便宜。", "这是化学变化。", "他是首领。", "房间很干净。", "玻璃是透明的。", "这是一种常见的鸟。", "任务很复杂。", "她现在有意识了。", "剪下来的纸很小。", "井很深。", "孩子是有依赖性的。", "我们今天来得早。", "带子是有弹性的。", "灯是电动的。", "线条是相等的。", "猪很肥。", "土壤肥沃。", "他获得了一等奖。", "价格是固定的。", "路很平坦。", "这只鸟是自由的。", "他的来访很频繁。", "瓶子已经满了。", "这是常识。", "食物很好。", "他是一个伟大的人。", "天空是灰色的。", "灯是挂着的。", "孩子很高兴。", "石头很硬。", "她是一个健康的女人。", "山很高。", "树是空心的。", "这是一个重要的日子。", "她是一位善良的女士。", "他就像他的父亲。", "植物是有生命的。", "绳子很长。", "宝宝是男的。", "他们结婚了。", "成本是物质的。", "他需要医疗帮助。", "该基地是军事基地。", "这是一个天然湖泊。", "水是必要的。", "车子是新的。", "体温正常。", "门是开着的。", "线条是平行的。", "过去的一周很忙。", "他有体力。", "这个问题是政治性的。", "男人很穷。", "这是可能的。", "他就在现在的房间里。", "这是一封私人信件。", "获胜是有可能的。", "狗的速度很快。", "图书馆很安静。", "我们现在准备好了。", "苹果是红色的。", "他有规律的生活习惯。", "她有责任。", "你的答案是对的。", "球是圆的。", "我们有同一本书。", "她获得了第二名。", "他们在不同的房间里。", "他是一个严肃的人。", "刀很锋利。", "皮肤光滑。", "胶水很粘。", "卡很硬。", "线是直的。", "男人很坚强。", "突然有声音传来。", "蛋糕很甜。", "女孩很高。", "书很厚。", "鞋子很紧。", "男孩累了。", "这个故事是真的。", "风很猛烈。", "男人正在等待。", "汤是热的。", "外套湿了。", "河水很宽。", "老头子很聪明。", "太阳是黄色的。", "女人很年轻。", "宝宝现在醒了。", "这食物味道不好。", "弯曲的棍子毫无用处。", "药是苦的。", "今天的天空很蓝。", "我确信他来了。", "水很冷。", "工作已经完成。", "残忍的男人笑了。", "房间很暗。", "花死了。", "我亲爱的朋友离开了。", "精致的杯子碎了。", "我们有不同的书。", "他的鞋子很脏。", "布已干。", "他的故事是假的。", "虚弱的狗休息了。", "母猫睡着了。", "这是一个愚蠢的行为。", "我们未来的计划已定。", "绿叶飘落了。", "她今天病了。", "他坐在最后一个座位上。", "火车晚点了。", "他的左手很痛。", "松动的绳子滑落了。", "响亮的铃声响起。", "矮墙倒塌了。", "混合后的油漆干燥。", "狭窄的道路弯曲。", "我的旧车停了下来。", "他们走了相反的路。", "公园开放了。", "粗糙的木头被划伤了。", "伤心的孩子哭了。", "保险箱锁了。", "他们秘密见面。", "短绳断了。", "紧闭的门锁着。", "简单的任务完成了。", "缓慢的乌龟动了。", "一只小鸟在唱歌。", "柔软的床陷了下去。", "坚硬的冰融化了。", "这是一个特别的日子。", "来了一个陌生男人。", "薄纸撕破了。", "白雪飘落了。", "你的答案是错误的。"];
 </script>
+<script>// 自动生成：音标示例词离线音频映射（由 gen_phonics_audio.py 生成）
+var PHONICS_AUDIO = {
+  "see": "audio/phonics/see.mp3",
+  "tea": "audio/phonics/tea.mp3",
+  "sit": "audio/phonics/sit.mp3",
+  "big": "audio/phonics/big.mp3",
+  "bed": "audio/phonics/bed.mp3",
+  "pen": "audio/phonics/pen.mp3",
+  "cat": "audio/phonics/cat.mp3",
+  "map": "audio/phonics/map.mp3",
+  "bird": "audio/phonics/bird.mp3",
+  "girl": "audio/phonics/girl.mp3",
+  "about": "audio/phonics/about.mp3",
+  "china": "audio/phonics/china.mp3",
+  "door": "audio/phonics/door.mp3",
+  "four": "audio/phonics/four.mp3",
+  "dog": "audio/phonics/dog.mp3",
+  "hot": "audio/phonics/hot.mp3",
+  "food": "audio/phonics/food.mp3",
+  "two": "audio/phonics/two.mp3",
+  "book": "audio/phonics/book.mp3",
+  "good": "audio/phonics/good.mp3",
+  "car": "audio/phonics/car.mp3",
+  "star": "audio/phonics/star.mp3",
+  "cup": "audio/phonics/cup.mp3",
+  "sun": "audio/phonics/sun.mp3",
+  "cake": "audio/phonics/cake.mp3",
+  "day": "audio/phonics/day.mp3",
+  "time": "audio/phonics/time.mp3",
+  "bike": "audio/phonics/bike.mp3",
+  "boy": "audio/phonics/boy.mp3",
+  "oil": "audio/phonics/oil.mp3",
+  "house": "audio/phonics/house.mp3",
+  "now": "audio/phonics/now.mp3",
+  "go": "audio/phonics/go.mp3",
+  "no": "audio/phonics/no.mp3",
+  "ear": "audio/phonics/ear.mp3",
+  "here": "audio/phonics/here.mp3",
+  "air": "audio/phonics/air.mp3",
+  "hair": "audio/phonics/hair.mp3",
+  "sure": "audio/phonics/sure.mp3",
+  "tour": "audio/phonics/tour.mp3",
+  "red": "audio/phonics/red.mp3",
+  "fish": "audio/phonics/fish.mp3",
+  "coffee": "audio/phonics/coffee.mp3",
+  "very": "audio/phonics/very.mp3",
+  "love": "audio/phonics/love.mp3",
+  "think": "audio/phonics/think.mp3",
+  "three": "audio/phonics/three.mp3",
+  "this": "audio/phonics/this.mp3",
+  "that": "audio/phonics/that.mp3",
+  "bus": "audio/phonics/bus.mp3",
+  "zoo": "audio/phonics/zoo.mp3",
+  "busy": "audio/phonics/busy.mp3",
+  "she": "audio/phonics/she.mp3",
+  "vision": "audio/phonics/vision.mp3",
+  "measure": "audio/phonics/measure.mp3",
+  "he": "audio/phonics/he.mp3",
+  "hello": "audio/phonics/hello.mp3",
+  "chair": "audio/phonics/chair.mp3",
+  "watch": "audio/phonics/watch.mp3",
+  "jump": "audio/phonics/jump.mp3",
+  "orange": "audio/phonics/orange.mp3",
+  "man": "audio/phonics/man.mp3",
+  "milk": "audio/phonics/milk.mp3",
+  "sing": "audio/phonics/sing.mp3",
+  "king": "audio/phonics/king.mp3",
+  "like": "audio/phonics/like.mp3",
+  "ball": "audio/phonics/ball.mp3",
+  "run": "audio/phonics/run.mp3",
+  "we": "audio/phonics/we.mp3",
+  "water": "audio/phonics/water.mp3",
+  "yes": "audio/phonics/yes.mp3",
+  "you": "audio/phonics/you.mp3"
+};
+</script>
 <script>/* Basic English 850 · 学习应用逻辑 */
 (function () {
   "use strict";
@@ -12026,6 +12109,7 @@ var WORD_LISTS = [
     for (var _wi = 0; _wi < _ws.length; _wi++) { if (!ALL_WORD_MAP[_ws[_wi].w]) ALL_WORD_MAP[_ws[_wi].w] = _ws[_wi]; }
   }
   var HAS_AUDIO = true; // 已随应用打包 audio/ 目录
+  var phonicsRunId = 0;  // 音标朗读序列号，用于停止/重启动断当前朗读链
   function audioSrc(idx, kind) {
     var s = (kind === "ex") ? "_ex" : (kind === "zh") ? "_zh" : "_w";
     return "audio/" + idx + s + ".mp3";
@@ -13025,7 +13109,9 @@ var WORD_LISTS = [
         lastG = p.g;
       }
       var exHtml = "";
-      p.ex.forEach(function (e) { exHtml += '<span class="ph-ex">'+esc(e[0])+' <i>/'+esc(e[1])+'/</i> '+esc(e[2])+'</span>'; });
+      p.ex.forEach(function (e) {
+        exHtml += '<span class="ph-ex" data-word="' + esc(e[0]) + '">🔊 ' + esc(e[0]) + ' <i>/' + esc(e[1]) + '/</i> ' + esc(e[2]) + '</span>';
+      });
       html +=
         '<div class="ph-card" id="ph-card-' + idx + '">' +
           '<div class="ph-mouth">' + mouthSvg(p.r, p.o, p.tongue) + '</div>' +
@@ -13033,7 +13119,7 @@ var WORD_LISTS = [
             '<div class="ph-sym">/' + esc(p.s) + '/</div>' +
             '<div class="ph-mouth-txt">👄 ' + esc(p.m) + '</div>' +
             '<div class="ph-exs">' + exHtml + '</div>' +
-            '<button class="pos-play ph-play" data-ph="' + idx + '">🔊 朗读示例</button>' +
+            '<button class="pos-play ph-play" data-ph="' + idx + '">🔊 听发音（读示例词）</button>' +
           '</div>' +
         '</div>';
     });
@@ -13043,28 +13129,84 @@ var WORD_LISTS = [
     for (var i = 0; i < btns.length; i++) {
       btns[i].addEventListener("click", function () {
         var p = PHONICS[parseInt(this.dataset.ph, 10)];
-        if (p) playPhonics(p, this);
+        if (p) playPhonics(p);
+      });
+    }
+    var exs = el("phonics-list").querySelectorAll(".ph-ex");
+    for (var k = 0; k < exs.length; k++) {
+      exs[k].addEventListener("click", function () {
+        playPhonicsWord(this.dataset.word);
       });
     }
   }
-  function playPhonics(p, btn) {
+  // 播放单个示例词：优先离线音频，否则回退浏览器 TTS
+  function playPhonicsWord(word, cb) {
+    var key = (word || "").toLowerCase();
+    var url = (typeof PHONICS_AUDIO !== "undefined" && PHONICS_AUDIO[key]) ? PHONICS_AUDIO[key] : null;
+    if (url) { playMp3(url, cb); }
+    else { speakEn(word, cb); }
+  }
+  function playPhonics(p) {
     if (!HAS_AUDIO && !("speechSynthesis" in window)) { alert("当前环境无法播放语音"); return; }
+    phonicsRunId++;
+    var myRun = phonicsRunId;
+    stopAudio();
+    var idx = PHONICS.indexOf(p);
     var cards = el("phonics-list").querySelectorAll(".ph-card");
     for (var i = 0; i < cards.length; i++) cards[i].classList.remove("playing");
-    var card = el("ph-card-" + (PHONICS.indexOf(p))); if (card) card.classList.add("playing");
+    var card = el("ph-card-" + idx); if (card) card.classList.add("playing");
     if (state.settings.keepAwake) requestWakeLock();
-    el("phonics-status").textContent = "正在朗读：/" + p.s + "/ 的示例词";
+    el("phonics-status").textContent = "正在朗读：/" + p.s + "/ 的示例词 " + p.ex.map(function (e) { return e[0]; }).join("、");
     var i = 0;
+    function alive() { return myRun === phonicsRunId; }
     function next() {
+      if (!alive()) return;
       if (i >= p.ex.length) { finish(); return; }
-      speakEn(p.ex[i][0], function () { i++; next(); });
+      var word = p.ex[i][0]; i++;
+      playPhonicsWord(word, function () { next(); });
     }
-    next();
     function finish() {
+      if (!alive()) return;
       el("phonics-status").textContent = "已朗读完：/" + p.s + "/（可点其它音标继续）";
       if (card) card.classList.remove("playing");
       releaseWakeLock();
     }
+    next();
+  }
+  // 一键朗读全部音标（示例词串读）
+  function playAllPhonics() {
+    if (!HAS_AUDIO && !("speechSynthesis" in window)) { alert("当前环境无法播放语音"); return; }
+    phonicsRunId++;
+    var myRun = phonicsRunId;
+    stopAudio();
+    if (state.settings.keepAwake) requestWakeLock();
+    var i = 0;
+    function alive() { return myRun === phonicsRunId; }
+    function nextPh() {
+      if (!alive()) return;
+      if (i >= PHONICS.length) { finish(); return; }
+      var p = PHONICS[i];
+      el("phonics-status").textContent = "正在朗读 (" + (i + 1) + "/" + PHONICS.length + ")：/" + p.s + "/  " + p.ex.map(function (e) { return e[0]; }).join("、");
+      var cards = el("phonics-list").querySelectorAll(".ph-card");
+      for (var c = 0; c < cards.length; c++) cards[c].classList.remove("playing");
+      var card = el("ph-card-" + i); if (card) card.classList.add("playing");
+      var j = 0;
+      function nextWord() {
+        if (!alive()) return;
+        if (j >= p.ex.length) { i++; nextPh(); return; }
+        var word = p.ex[j][0]; j++;
+        playPhonicsWord(word, function () { nextWord(); });
+      }
+      nextWord();
+    }
+    function finish() {
+      if (!alive()) return;
+      el("phonics-status").textContent = "已全部朗读完 " + PHONICS.length + " 个音标 ✅（可再点一次重听）";
+      var cards = el("phonics-list").querySelectorAll(".ph-card");
+      for (var c = 0; c < cards.length; c++) cards[c].classList.remove("playing");
+      releaseWakeLock();
+    }
+    nextPh();
   }
 
   // ---------- 基础学习子标签切换 ----------
@@ -13187,6 +13329,13 @@ var WORD_LISTS = [
     el("listen-play").addEventListener("click", toggleListen);
     el("readall-play").addEventListener("click", startReadAll);
     el("readall-restart").addEventListener("click", restartReadAll);
+    // 音标：一键朗读全部 + 停止
+    var pr = el("phonics-readall"); if (pr) pr.addEventListener("click", playAllPhonics);
+    var ps = el("phonics-stop"); if (ps) ps.addEventListener("click", function () {
+      phonicsRunId++;            // 使当前朗读链失效
+      stopAudio();
+      el("phonics-status").textContent = "已停止";
+    });
     el("nav-prev").addEventListener("click", function () { navGoto(-1); });
     el("nav-next").addEventListener("click", function () { navGoto(1); });
     updateNavInfo();

@@ -145,6 +145,9 @@
   .ph-exs{margin-top:6px;display:flex;flex-direction:column;gap:3px;}
   .ph-ex{font-size:14px;color:var(--text);}
   .ph-ex i{color:var(--mut);font-style:normal;font-size:13px;}
+  .ph-ex{cursor:pointer;padding:3px 6px;border-radius:8px;background:var(--blue-l);border:1px solid transparent;transition:background .15s,border-color .15s;display:inline-block;}
+  .ph-ex:hover{background:#e3edff;border-color:var(--blue);}
+  .ph-ex:active{transform:scale(.97);}
   .ph-play{margin-top:8px;font-size:14px;padding:10px;}
   .big-play{width:120px;height:120px;border-radius:50%;background:var(--blue);color:#fff;font-size:42px;
     margin:18px auto;display:flex;align-items:center;justify-content:center;border:none;}
@@ -418,7 +421,11 @@
 
         <!-- 音标面板 -->
         <div id="phonics-panel" class="pos-panel" style="display:none">
-          <div class="muted" style="margin:6px 0 4px">每个音标配口型图 + 示例词，点「🔊 朗读示例」听发音。</div>
+          <div class="muted" style="margin:6px 0 8px">每个音标配口型图 + 示例词，点「🔊 听发音」听清晰的单词示例；也可一键把全部音标串起来朗读。</div>
+          <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
+            <button id="phonics-readall" class="pos-play" style="flex:1;min-width:160px;background:var(--green)">🔊 一键朗读全部音标</button>
+            <button id="phonics-stop" class="pos-play" style="flex:0 0 auto;background:#888">⏹ 停止</button>
+          </div>
           <div id="phonics-list"></div>
           <div class="center muted" id="phonics-status" style="margin-top:10px"></div>
         </div>
@@ -463,6 +470,7 @@
 <script src="words.js"></script>
 <script src="wordlists.js"></script>
 <script src="ex_zh.js"></script>
+<script src="phonics_audio.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
