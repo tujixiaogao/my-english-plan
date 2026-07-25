@@ -119,6 +119,33 @@
   .pos-ex{font-size:15px;color:var(--text);margin-top:8px;background:var(--blue-l);border-radius:10px;padding:8px 10px;}
   .pos-play{margin-top:10px;width:100%;background:var(--blue);color:#fff;border:none;font-size:15px;padding:12px;border-radius:10px;}
   .pos-play:active{transform:scale(.98);}
+  .pos-tip{font-size:13.5px;color:var(--amber);background:var(--amber-l);border-radius:10px;padding:8px 10px;margin-top:8px;line-height:1.5;}
+  /* 基础学习子标签 */
+  .pos-subnav{display:flex;gap:6px;margin:8px 0 4px;}
+  .ps-tab{flex:1;text-align:center;font-size:14px;padding:9px 4px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--mut);cursor:pointer;}
+  .ps-tab.on{background:var(--blue);color:#fff;border-color:var(--blue);font-weight:600;}
+  /* 语法卡片 */
+  .g-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:10px 0;}
+  .g-card.playing{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-l);}
+  .g-head{margin-bottom:6px;}
+  .g-name{font-size:18px;font-weight:700;color:var(--blue-d);}
+  .g-intro{font-size:15px;color:#444;line-height:1.55;}
+  .g-formula{font-size:14px;color:var(--text);background:var(--blue-l);border-radius:10px;padding:8px 10px;margin-top:8px;line-height:1.5;}
+  .g-ex{font-size:14px;color:var(--text);margin-top:6px;line-height:1.5;}
+  /* 音标卡片 */
+  .ph-group{margin-top:6px;}
+  .ph-group-title{font-size:13px;font-weight:700;color:var(--mut);margin:12px 0 4px;letter-spacing:1px;}
+  .ph-card{display:flex;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin:8px 0;align-items:stretch;}
+  .ph-card.playing{border-color:var(--blue);box-shadow:0 0 0 2px var(--blue-l);}
+  .ph-mouth{flex:0 0 96px;width:96px;background:var(--blue-l);border-radius:12px;display:flex;align-items:center;justify-content:center;padding:6px;}
+  .ph-mouth svg{width:100%;height:84px;}
+  .ph-body{flex:1;min-width:0;}
+  .ph-sym{font-size:24px;font-weight:700;color:var(--blue-d);font-family:Georgia,"Times New Roman",serif;}
+  .ph-mouth-txt{font-size:13px;color:#444;line-height:1.5;margin-top:4px;}
+  .ph-exs{margin-top:6px;display:flex;flex-direction:column;gap:3px;}
+  .ph-ex{font-size:14px;color:var(--text);}
+  .ph-ex i{color:var(--mut);font-style:normal;font-size:13px;}
+  .ph-play{margin-top:8px;font-size:14px;padding:10px;}
   .big-play{width:120px;height:120px;border-radius:50%;background:var(--blue);color:#fff;font-size:42px;
     margin:18px auto;display:flex;align-items:center;justify-content:center;border:none;}
   .field{margin:14px 0;}
@@ -364,13 +391,37 @@
       </div>
     </section>
 
-    <!-- 词性学习 -->
+    <!-- 基础学习（词性 / 语法 / 音标） -->
     <section id="view-pos" class="view">
       <div class="card-box">
-        <div style="font-weight:600;margin-bottom:4px">📘 词性学习</div>
-        <div class="muted" style="margin-bottom:10px">点「朗读这个词性」即可听：词性名 → 通俗讲解 → 例句。帮你搞清楚每个词性到底是干嘛的。</div>
-        <div id="pos-list"></div>
-        <div class="center muted" id="pos-status" style="margin-top:10px">点击上面的按钮开始朗读</div>
+        <div style="font-weight:600;margin-bottom:4px">🎓 基础学习</div>
+        <div class="muted" style="margin-bottom:10px">词性、语法、音标三大基础，通俗讲解 + 口诀 + 朗读，零基础也能看懂。</div>
+        <div class="pos-subnav">
+          <button class="ps-tab on" data-pos="pos">📘 词性</button>
+          <button class="ps-tab" data-pos="grammar">📐 语法</button>
+          <button class="ps-tab" data-pos="phonics">🔤 音标</button>
+        </div>
+
+        <!-- 词性面板 -->
+        <div id="pos-panel" class="pos-panel">
+          <div class="muted" style="margin:6px 0 4px">点击「🔊 朗读」听：词性名 → 通俗讲解 → 例句 → 口诀。</div>
+          <div id="pos-list"></div>
+          <div class="center muted" id="pos-status" style="margin-top:10px">点击上面的按钮开始朗读</div>
+        </div>
+
+        <!-- 语法面板 -->
+        <div id="grammar-panel" class="pos-panel" style="display:none">
+          <div class="muted" style="margin:6px 0 4px">每个语法点含：通俗讲解 + 结构公式 + 例句 + 记忆口诀，点「🔊 朗读」听讲解。</div>
+          <div id="grammar-list"></div>
+          <div class="center muted" id="grammar-status" style="margin-top:10px">点击上面的按钮开始朗读</div>
+        </div>
+
+        <!-- 音标面板 -->
+        <div id="phonics-panel" class="pos-panel" style="display:none">
+          <div class="muted" style="margin:6px 0 4px">每个音标配口型图 + 示例词，点「🔊 朗读示例」听发音。</div>
+          <div id="phonics-list"></div>
+          <div class="center muted" id="phonics-status" style="margin-top:10px"></div>
+        </div>
       </div>
     </section>
 
@@ -404,7 +455,7 @@
     <button class="tab" data-view="listen"><span class="ic">🎧</span>听学</button>
     <button class="tab" data-view="passage"><span class="ic">📖</span>短文</button>
     <button class="tab" data-view="stats"><span class="ic">📊</span>统计</button>
-    <button class="tab" data-view="pos"><span class="ic">📘</span>词性</button>
+    <button class="tab" data-view="pos"><span class="ic">🎓</span>基础</button>
     <button class="tab" data-view="settings"><span class="ic">⚙️</span>设置</button>
   </nav>
 </div>
@@ -12766,15 +12817,15 @@ var WORD_LISTS = [
 
   // ---------- 词性学习栏目 ----------
   var POS_LESSONS = [
-    { code: "v",    name: "动词",   sym: "v.",   intro: "表示动作或状态，比如 run（跑）、eat（吃）、be（是）、have（有）。句子里通常少不了它。", ex: "He runs every morning." },
-    { code: "n",    name: "名词",   sym: "n.",   intro: "表示人、事物、地方或概念，比如 book（书）、water（水）、teacher（老师）、love（爱）。", ex: "The book is on the table." },
-    { code: "adj",  name: "形容词", sym: "adj.", intro: "用来描述名词，说明它“是什么样的”，比如 big（大的）、red（红的）、good（好的）。", ex: "She has a big red bag." },
-    { code: "adv",  name: "副词",   sym: "adv.", intro: "修饰动词、形容词或其他副词，常表示“怎么、多快、哪里”。很多以 -ly 结尾，比如 quickly（快速地）、very（非常）。", ex: "He speaks very quickly." },
-    { code: "aux",  name: "助动词", sym: "aux.", intro: "帮助主要动词表达时态、疑问或否定，比如 can（能）、will（将）、do（做）。", ex: "She can swim very well." },
-    { code: "conj", name: "连词",   sym: "conj.",intro: "用来连接词、短语或句子，比如 and（和）、but（但是）、because（因为）。", ex: "I like tea but he likes coffee." },
-    { code: "det",  name: "限定词", sym: "det.", intro: "放在名词前面，说明“哪一个 / 多少”，比如 the（这/那）、a（一个）、my（我的）、this（这个）。", ex: "This is my book." },
-    { code: "prep", name: "介词",   sym: "prep.",intro: "表示名词和其他词之间的关系，常说明位置、时间、方向，比如 in（在…里）、on（在…上）、to（到）、with（和…一起）。", ex: "The cat is on the chair." },
-    { code: "pron", name: "代词",   sym: "pron.",intro: "用来代替名词，避免重复，比如 I（我）、he（他）、it（它）、they（他们）。", ex: "He gave it to them." }
+    { code: "v",    name: "动词",   sym: "v.",   intro: "表示动作或状态，比如 run（跑）、eat（吃）、be（是）、have（有）。句子里通常少不了它，主语做的“事”就靠它。", ex: "He runs every morning.", tip: "口诀：动词是说“做什么”，跑跳吃睡都是它。" },
+    { code: "n",    name: "名词",   sym: "n.",   intro: "表示人、事物、地方或概念，比如 book（书）、water（水）、teacher（老师）、love（爱）。句子里最常见的“东西”就是名词。", ex: "The book is on the table.", tip: "口诀：名词就是“是什么”，人物地方加事物。" },
+    { code: "adj",  name: "形容词", sym: "adj.", intro: "用来描述名词，说明它“是什么样的”，比如 big（大的）、red（红的）、good（好的）。常放在名词前面。", ex: "She has a big red bag.", tip: "口诀：形容词讲“什么样”，大小红绿它来状。" },
+    { code: "adv",  name: "副词",   sym: "adv.", intro: "修饰动词、形容词或其他副词，常表示“怎么、多快、哪里”。很多以 -ly 结尾，比如 quickly（快速地）、very（非常）。", ex: "He speaks very quickly.", tip: "口诀：副词多带 ly 尾，快慢好坏它来陪。" },
+    { code: "aux",  name: "助动词", sym: "aux.", intro: "帮助主要动词表达时态、疑问或否定，自己不单独表意，比如 can（能）、will（将）、do（做）。", ex: "She can swim very well.", tip: "口诀：助动词是“好帮手”，can will do 来凑。" },
+    { code: "conj", name: "连词",   sym: "conj.",intro: "用来连接词、短语或句子，比如 and（和）、but（但是）、because（因为）。把句子串起来就靠它。", ex: "I like tea but he likes coffee.", tip: "口诀：连词就像“胶水’，and but 连成句。" },
+    { code: "det",  name: "限定词", sym: "det.", intro: "放在名词前面，说明“哪一个 / 多少”，比如 the（这/那）、a（一个）、my（我的）、this（这个）。", ex: "This is my book.", tip: "口诀：限定词在名前站，a the my 定范围。" },
+    { code: "prep", name: "介词",   sym: "prep.",intro: "表示名词和其他词之间的关系，常说明位置、时间、方向，比如 in（在…里）、on（在…上）、to（到）、with（和…一起）。", ex: "The cat is on the chair.", tip: "口诀：介词说“在哪儿”，in on to with 方位连。" },
+    { code: "pron", name: "代词",   sym: "pron.",intro: "用来代替名词，避免重复，比如 I（我）、he（他）、it（它）、they（他们）。", ex: "He gave it to them.", tip: "口诀：代词替名词跑，I he it they 省啰嗦。" }
   ];
   function renderPos() {
     var html = "";
@@ -12784,7 +12835,8 @@ var WORD_LISTS = [
           '<div class="pos-head"><span class="pos-name">' + l.name + '</span><span class="lc-pos">' + l.sym + '</span></div>' +
           '<div class="pos-intro">' + esc(l.intro) + '</div>' +
           '<div class="pos-ex">📘 ' + esc(l.ex) + '</div>' +
-          '<button class="pos-play" data-code="' + l.code + '">🔊 朗读这个词性</button>' +
+          '<div class="pos-tip">💡 ' + esc(l.tip) + '</div>' +
+          '<button class="pos-play" data-code="' + l.code + '">🔊 朗读（讲解+口诀）</button>' +
         '</div>';
     });
     el("pos-list").innerHTML = html;
@@ -12800,7 +12852,6 @@ var WORD_LISTS = [
   }
   function playPos(l, btn) {
     if (!HAS_AUDIO && !("speechSynthesis" in window)) { alert("当前环境无法播放语音"); return; }
-    // 高亮当前卡片
     var cards = el("pos-list").querySelectorAll(".pos-card");
     for (var i = 0; i < cards.length; i++) cards[i].classList.remove("playing");
     var card = el("pos-card-" + l.code); if (card) card.classList.add("playing");
@@ -12811,11 +12862,218 @@ var WORD_LISTS = [
       if (card) card.classList.remove("playing");
       releaseWakeLock();
     }
+    // 顺序：词性名(离线) → 讲解(离线) → 例句(离线) → 口诀(TTS)
     playMp3("audio/pos_" + l.code + ".mp3", function () {
       playMp3("audio/pos_intro_" + l.code + ".mp3", function () {
-        playMp3("audio/pos_ex_" + l.code + ".mp3", function () { done(); });
+        playMp3("audio/pos_ex_" + l.code + ".mp3", function () {
+          speakZh(l.tip.replace(/^口诀：/, "记忆口诀："), done);
+        });
       });
     });
+  }
+
+  // ---------- 语法学习栏目 ----------
+  var GRAMMAR_LESSONS = [
+    { name: "一般现在时", intro: "说平时经常做的事、习惯或客观事实。比如“我每天吃苹果”“太阳从东边升起”。", formula: "主语 + 动词原形；第三人称单数(he/she/it)要加 -s / -es。", examples: ["I eat an apple every day. 我每天吃一个苹果。", "He eats an apple. 他吃一个苹果。"], tip: "口诀：经常事实用现在，三单动词要加 s。" },
+    { name: "现在进行时", intro: "说此时此刻正在做的事。比如“我正在看书”“他们正在踢球”。", formula: "am / is / are + 动词 -ing（现在分词）。", examples: ["I am reading a book. 我正在看书。", "They are playing football. 他们正在踢球。"], tip: "口诀：现在进行 be 加 ing，动作正在发生中。" },
+    { name: "一般过去时", intro: "说过去已经发生、做完了的事。比如“我昨天看了一部电影”。", formula: "主语 + 动词过去式（规则加 -ed；不规则要背，如 go→went）。", examples: ["I watched a film. 我看了一部电影。", "He went home. 他回家了。"], tip: "口诀：过去的事用过去，动词变成 ed 式。" },
+    { name: "一般将来时", intro: "说打算或将要发生的事。比如“我明天要去北京”。", formula: "will + 动词原形；或 be going to + 动词原形（表示打算）。", examples: ["I will go to Beijing. 我要去北京。", "She is going to sing. 她打算唱歌。"], tip: "口诀：将来要做 will 加动，打算用 be going to。" },
+    { name: "现在完成时", intro: "说一个过去发生、但和现在还有关联的动作，常翻译“已经…了”。比如“我已经吃过饭了”。", formula: "have / has + 动词过去分词（done 形式）。", examples: ["I have eaten lunch. 我已经吃过午饭了。", "She has finished homework. 她写完了作业。"], tip: "口诀：完成时态 have/has，过去分词跟后头。" },
+    { name: "形容词比较级", intro: "把两样东西比一比，谁更…。比如“他比我高”“这部手机更便宜”。", formula: "短词加 -er（tall→taller）；多音节词用 more + 原级（more beautiful）。", examples: ["He is taller than me. 他比我高。", "This phone is cheaper. 这部手机更便宜。"], tip: "口诀：两者比较加 er，多音节词 more 放前。" },
+    { name: "情态动词 can / must", intro: "表示“能、会、必须”等语气，后面永远跟动词原形。比如“我会游泳”“你必须睡觉”。", formula: "can / must / should + 动词原形（不三单加 s，也不加 to）。", examples: ["I can swim. 我会游泳。", "You must sleep. 你必须睡觉。"], tip: "口诀：情态动词很特别，后面永远跟原形。" },
+    { name: "There be 句型", intro: "说“某处有某物/某人”，表示存在。比如“桌上有一本书”“公园里有许多花”。", formula: "There is + 单数/不可数；There are + 复数。就近原则：挨着 is/are 的词决定单复数。", examples: ["There is a book on the desk. 桌上有一本书。", "There are many flowers. 有许多花。"], tip: "口诀：there be 表存在，就近原则单数先。" }
+  ];
+  function renderGrammar() {
+    var html = "";
+    GRAMMAR_LESSONS.forEach(function (g, idx) {
+      var exHtml = "";
+      g.examples.forEach(function (e) { exHtml += '<div class="g-ex">📗 ' + esc(e) + '</div>'; });
+      html +=
+        '<div class="g-card" id="g-card-' + idx + '">' +
+          '<div class="g-head"><span class="g-name">' + esc(g.name) + '</span></div>' +
+          '<div class="g-intro">' + esc(g.intro) + '</div>' +
+          '<div class="g-formula">📐 结构：' + esc(g.formula) + '</div>' +
+          exHtml +
+          '<div class="pos-tip">💡 ' + esc(g.tip) + '</div>' +
+          '<button class="pos-play g-play" data-g="' + idx + '">🔊 朗读讲解</button>' +
+        '</div>';
+    });
+    el("grammar-list").innerHTML = html;
+    var btns = el("grammar-list").querySelectorAll(".g-play");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener("click", function () {
+        var g = GRAMMAR_LESSONS[parseInt(this.dataset.g, 10)];
+        if (g) playGrammar(g, this);
+      });
+    }
+  }
+  function playGrammar(g, btn) {
+    if (!HAS_AUDIO && !("speechSynthesis" in window)) { alert("当前环境无法播放语音"); return; }
+    var cards = el("grammar-list").querySelectorAll(".g-card");
+    for (var i = 0; i < cards.length; i++) cards[i].classList.remove("playing");
+    var card = el("g-card-" + (GRAMMAR_LESSONS.indexOf(g))); if (card) card.classList.add("playing");
+    if (state.settings.keepAwake) requestWakeLock();
+    el("grammar-status").textContent = "正在朗读：" + g.name;
+    var exEn = [], exZh = [];
+    g.examples.forEach(function (e) {
+      var sp = e.indexOf(". ");
+      if (sp > 0) { exEn.push(e.slice(0, sp)); exZh.push(e.slice(sp + 2)); }
+      else { exEn.push(e); exZh.push(""); }
+    });
+    // 顺序：名称→讲解→结构→例句(英+中)
+    speakZh(g.name + "。", function () {
+      speakZh(g.intro, function () {
+        speakZh("结构：" + g.formula, function () {
+          var i = 0;
+          function next() {
+            if (i >= exEn.length) { finish(); return; }
+            speakEn(exEn[i], function () {
+              if (exZh[i]) speakZh(exZh[i], function () { i++; next(); });
+              else { i++; next(); }
+            });
+          }
+          next();
+        });
+      });
+    });
+    function finish() {
+      el("grammar-status").textContent = "已朗读完：" + g.name + "（可点其它语法点继续）";
+      if (card) card.classList.remove("playing");
+      releaseWakeLock();
+    }
+  }
+
+  // ---------- 音标学习栏目 ----------
+  // 口型 SVG：round 圆唇程度(0-1)，open 张口程度(0-1)，tongue 是否露舌尖
+  function mouthSvg(round, open, tongue) {
+    round = round || 0; open = open || 0;
+    var W = 120, H = 90, cx = 60, cy = 47;
+    var rx = 34 - round * 12;
+    var ryO = 11 + open * 30;
+    var lipFill = "#E8A6BC", lipStroke = "#C65B7C";
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">';
+    s += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + (rx + 11) + '" ry="' + (ryO + 15) + '" fill="#FBE9EF" stroke="#F0CBD9" stroke-width="1.5"/>';
+    s += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + rx + '" ry="' + ryO + '" fill="' + lipFill + '" stroke="' + lipStroke + '" stroke-width="2.5"/>';
+    if (open > 0.08) {
+      var crx = rx * 0.6, cry = ryO * 0.62;
+      s += '<ellipse cx="' + cx + '" cy="' + cy + '" rx="' + crx + '" ry="' + cry + '" fill="#6E2B3C"/>';
+      if (tongue && open > 0.22) {
+        s += '<path d="M ' + (cx - crx * 0.7) + ' ' + (cy + cry * 0.1) +
+             ' Q ' + cx + ' ' + (cy + cry * 1.05) + ' ' + (cx + crx * 0.7) + ' ' + (cy + cry * 0.1) +
+             ' Q ' + cx + ' ' + (cy + cry * 0.5) + ' ' + (cx - crx * 0.7) + ' ' + (cy + cry * 0.1) + ' Z" fill="#E8749A"/>';
+      }
+    }
+    s += '</svg>';
+    return s;
+  }
+  var PHONICS = [
+    // 单元音 12
+    { s: "iː", g: "单元音", m: "嘴角向两边咧开，舌尖抵下齿，嘴微张。", ex: [["see", "siː", "看见"], ["tea", "tiː", "茶"]], r: 0.05, o: 0.22 },
+    { s: "ɪ", g: "单元音", m: "嘴比 iː 放松一点，舌尖抵下齿，短促。", ex: [["sit", "sɪt", "坐"], ["big", "bɪg", "大的"]], r: 0.1, o: 0.3 },
+    { s: "e", g: "单元音", m: "嘴半开，舌尖抵下齿，像微笑。", ex: [["bed", "bed", "床"], ["pen", "pen", "钢笔"]], r: 0.15, o: 0.45 },
+    { s: "æ", g: "单元音", m: "嘴张大，舌尖抵下齿，苹果音。", ex: [["cat", "kæt", "猫"], ["map", "mæp", "地图"]], r: 0.1, o: 0.72 },
+    { s: "ɜː", g: "单元音", m: "嘴半开，舌身平放居中，长音。", ex: [["bird", "bɜːd", "鸟"], ["girl", "gɜːl", "女孩"]], r: 0.3, o: 0.42 },
+    { s: "ə", g: "单元音", m: "最轻松的弱读音，嘴微张居中。", ex: [["about", "əˈbaʊt", "关于"], ["China", "ˈtʃaɪnə", "中国"]], r: 0.3, o: 0.35 },
+    { s: "ɔː", g: "单元音", m: "双唇收圆向前突，嘴半开，长音。", ex: [["door", "dɔː", "门"], ["four", "fɔː", "四"]], r: 0.85, o: 0.45 },
+    { s: "ɒ", g: "单元音", m: "嘴张大，双唇略圆，短促。", ex: [["dog", "dɒg", "狗"], ["hot", "hɒt", "热的"]], r: 0.7, o: 0.55 },
+    { s: "uː", g: "单元音", m: "双唇收圆向前突，嘴近闭，长音。", ex: [["food", "fuːd", "食物"], ["two", "tuː", "二"]], r: 0.95, o: 0.2 },
+    { s: "ʊ", g: "单元音", m: "双唇略圆，嘴半闭，短促。", ex: [["book", "bʊk", "书"], ["good", "gʊd", "好的"]], r: 0.8, o: 0.3 },
+    { s: "ɑː", g: "单元音", m: "嘴张大，舌身放低向后，长音。", ex: [["car", "kɑː", "汽车"], ["star", "stɑː", "星星"]], r: 0.15, o: 0.68 },
+    { s: "ʌ", g: "单元音", m: "嘴半开，舌身居中偏后，短促。", ex: [["cup", "kʌp", "杯子"], ["sun", "sʌn", "太阳"]], r: 0.2, o: 0.45 },
+    // 双元音 8
+    { s: "eɪ", g: "双元音", m: "从 e 滑向 ɪ，嘴角由开到咧。", ex: [["cake", "keɪk", "蛋糕"], ["day", "deɪ", "天"]], r: 0.1, o: 0.42 },
+    { s: "aɪ", g: "双元音", m: "从 ɑ 滑向 ɪ，嘴由大到小。", ex: [["time", "taɪm", "时间"], ["bike", "baɪk", "自行车"]], r: 0.05, o: 0.7 },
+    { s: "ɔɪ", g: "双元音", m: "从 ɔ 圆唇滑向 ɪ。", ex: [["boy", "bɔɪ", "男孩"], ["oil", "ɔɪl", "油"]], r: 0.6, o: 0.5 },
+    { s: "aʊ", g: "双元音", m: "从 ɑ 滑向 ʊ，嘴由大收圆。", ex: [["house", "haʊs", "房子"], ["now", "naʊ", "现在"]], r: 0.5, o: 0.6 },
+    { s: "əʊ", g: "双元音", m: "从 ə 滑向 ʊ，双唇渐圆。", ex: [["go", "gəʊ", "去"], ["no", "nəʊ", "不"]], r: 0.7, o: 0.4 },
+    { s: "ɪə", g: "双元音", m: "从 ɪ 滑向 ə，由咧到放松。", ex: [["ear", "ɪə", "耳朵"], ["here", "hɪə", "这里"]], r: 0.2, o: 0.45 },
+    { s: "eə", g: "双元音", m: "从 e 滑向 ə，嘴由开到松。", ex: [["air", "eə", "空气"], ["hair", "heə", "头发"]], r: 0.15, o: 0.55 },
+    { s: "ʊə", g: "双元音", m: "从 ʊ 圆唇滑向 ə。", ex: [["sure", "ʃʊə", "确信"], ["tour", "tʊə", "旅行"]], r: 0.6, o: 0.45 },
+    // 辅音 24
+    { s: "p", g: "辅音", m: "双唇紧闭再突然张开，送气不发声。", ex: [["pen", "pen", "钢笔"], ["cup", "kʌp", "杯子"]], r: 0, o: 0, tongue: false },
+    { s: "b", g: "辅音", m: "双唇紧闭再张开，声带振动。", ex: [["big", "bɪg", "大的"], ["book", "bʊk", "书"]], r: 0, o: 0, tongue: false },
+    { s: "t", g: "辅音", m: "舌尖抵上齿龈，弹开送气。", ex: [["tea", "tiː", "茶"], ["cat", "kæt", "猫"]], r: 0.1, o: 0.15, tongue: true },
+    { s: "d", g: "辅音", m: "舌尖抵上齿龈，弹开声带振动。", ex: [["dog", "dɒg", "狗"], ["red", "red", "红色"]], r: 0.1, o: 0.15, tongue: true },
+    { s: "k", g: "辅音", m: "舌根抵软腭，弹开送气。", ex: [["cat", "kæt", "猫"], ["book", "bʊk", "书"]], r: 0.1, o: 0.2, tongue: false },
+    { s: "g", g: "辅音", m: "舌根抵软腭，弹开声带振动。", ex: [["go", "gəʊ", "去"], ["dog", "dɒg", "狗"]], r: 0.1, o: 0.2, tongue: false },
+    { s: "f", g: "辅音", m: "上齿轻咬下唇，送气摩擦。", ex: [["fish", "fɪʃ", "鱼"], ["coffee", "ˈkɒfi", "咖啡"]], r: 0.2, o: 0.2, tongue: false },
+    { s: "v", g: "辅音", m: "上齿轻咬下唇，声带振动。", ex: [["very", "ˈveri", "非常"], ["love", "lʌv", "爱"]], r: 0.2, o: 0.2, tongue: false },
+    { s: "θ", g: "辅音", m: "舌尖伸到上下齿之间，送气。", ex: [["think", "θɪŋk", "想"], ["three", "θriː", "三"]], r: 0.1, o: 0.28, tongue: true },
+    { s: "ð", g: "辅音", m: "舌尖伸到上下齿之间，声带振动。", ex: [["this", "ðɪs", "这个"], ["that", "ðæt", "那个"]], r: 0.1, o: 0.28, tongue: true },
+    { s: "s", g: "辅音", m: "舌尖近上齿龈，气流摩擦。", ex: [["see", "siː", "看见"], ["bus", "bʌs", "公交车"]], r: 0.2, o: 0.2, tongue: false },
+    { s: "z", g: "辅音", m: "舌尖近上齿龈，气流摩擦声带振动。", ex: [["zoo", "zuː", "动物园"], ["busy", "ˈbɪzi", "忙碌的"]], r: 0.2, o: 0.2, tongue: false },
+    { s: "ʃ", g: "辅音", m: "双唇略圆突出，舌身抬起摩擦。", ex: [["she", "ʃiː", "她"], ["fish", "fɪʃ", "鱼"]], r: 0.45, o: 0.2, tongue: false },
+    { s: "ʒ", g: "辅音", m: "双唇略圆突出，舌身抬起摩擦声带振动。", ex: [["vision", "ˈvɪʒn", "视力"], ["measure", "ˈmeʒə", "测量"]], r: 0.45, o: 0.2, tongue: false },
+    { s: "h", g: "辅音", m: "口微张，气流从喉咙轻轻呼出。", ex: [["he", "hiː", "他"], ["hello", "həˈləʊ", "你好"]], r: 0.25, o: 0.3, tongue: false },
+    { s: "tʃ", g: "辅音", m: "舌尖抵齿龈，像“吃”的起始。", ex: [["chair", "tʃeə", "椅子"], ["watch", "wɒtʃ", "手表"]], r: 0.35, o: 0.2, tongue: true },
+    { s: "dʒ", g: "辅音", m: "舌尖抵齿龈，像“知”的起始，声带振动。", ex: [["jump", "dʒʌmp", "跳"], ["orange", "ˈɒrɪndʒ", "橘子"]], r: 0.35, o: 0.2, tongue: true },
+    { s: "m", g: "辅音", m: "双唇紧闭，鼻音振动。", ex: [["man", "mæn", "男人"], ["milk", "mɪlk", "牛奶"]], r: 0, o: 0, tongue: false },
+    { s: "n", g: "辅音", m: "舌尖抵上齿龈，鼻音振动。", ex: [["no", "nəʊ", "不"], ["pen", "pen", "钢笔"]], r: 0.1, o: 0.15, tongue: true },
+    { s: "ŋ", g: "辅音", m: "舌根抵软腭，鼻音振动。", ex: [["sing", "sɪŋ", "唱歌"], ["king", "kɪŋ", "国王"]], r: 0.1, o: 0.2, tongue: false },
+    { s: "l", g: "辅音", m: "舌尖抵上齿龈，气流从舌边出。", ex: [["like", "laɪk", "喜欢"], ["ball", "bɔːl", "球"]], r: 0.1, o: 0.15, tongue: true },
+    { s: "r", g: "辅音", m: "双唇收圆，舌尖卷起不接触。", ex: [["red", "red", "红色"], ["run", "rʌn", "跑"]], r: 0.8, o: 0.2, tongue: true },
+    { s: "w", g: "辅音", m: "双唇收圆突出，像“乌”的起始。", ex: [["we", "wiː", "我们"], ["water", "ˈwɔːtə", "水"]], r: 0.95, o: 0.15, tongue: false },
+    { s: "j", g: "辅音", m: "嘴角向两边咧，像“衣”的起始。", ex: [["yes", "jes", "是"], ["you", "juː", "你"]], r: 0.05, o: 0.2, tongue: false }
+  ];
+  function renderPhonics() {
+    var html = "", lastG = "";
+    PHONICS.forEach(function (p, idx) {
+      var groupOpen = (p.g !== lastG);
+      if (groupOpen) {
+        if (lastG !== "") html += '</div>';
+        html += '<div class="ph-group"><div class="ph-group-title">' + esc(p.g) + '</div>';
+        lastG = p.g;
+      }
+      var exHtml = "";
+      p.ex.forEach(function (e) { exHtml += '<span class="ph-ex">'+esc(e[0])+' <i>/'+esc(e[1])+'/</i> '+esc(e[2])+'</span>'; });
+      html +=
+        '<div class="ph-card" id="ph-card-' + idx + '">' +
+          '<div class="ph-mouth">' + mouthSvg(p.r, p.o, p.tongue) + '</div>' +
+          '<div class="ph-body">' +
+            '<div class="ph-sym">/' + esc(p.s) + '/</div>' +
+            '<div class="ph-mouth-txt">👄 ' + esc(p.m) + '</div>' +
+            '<div class="ph-exs">' + exHtml + '</div>' +
+            '<button class="pos-play ph-play" data-ph="' + idx + '">🔊 朗读示例</button>' +
+          '</div>' +
+        '</div>';
+    });
+    if (lastG !== "") html += '</div>';
+    el("phonics-list").innerHTML = html;
+    var btns = el("phonics-list").querySelectorAll(".ph-play");
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener("click", function () {
+        var p = PHONICS[parseInt(this.dataset.ph, 10)];
+        if (p) playPhonics(p, this);
+      });
+    }
+  }
+  function playPhonics(p, btn) {
+    if (!HAS_AUDIO && !("speechSynthesis" in window)) { alert("当前环境无法播放语音"); return; }
+    var cards = el("phonics-list").querySelectorAll(".ph-card");
+    for (var i = 0; i < cards.length; i++) cards[i].classList.remove("playing");
+    var card = el("ph-card-" + (PHONICS.indexOf(p))); if (card) card.classList.add("playing");
+    if (state.settings.keepAwake) requestWakeLock();
+    el("phonics-status").textContent = "正在朗读：/" + p.s + "/ 的示例词";
+    var i = 0;
+    function next() {
+      if (i >= p.ex.length) { finish(); return; }
+      speakEn(p.ex[i][0], function () { i++; next(); });
+    }
+    next();
+    function finish() {
+      el("phonics-status").textContent = "已朗读完：/" + p.s + "/（可点其它音标继续）";
+      if (card) card.classList.remove("playing");
+      releaseWakeLock();
+    }
+  }
+
+  // ---------- 基础学习子标签切换 ----------
+  function switchPosTab(name) {
+    var tabs = document.querySelectorAll(".ps-tab");
+    for (var i = 0; i < tabs.length; i++) tabs[i].classList.toggle("on", tabs[i].getAttribute("data-pos") === name);
+    el("pos-panel").style.display = (name === "pos") ? "" : "none";
+    el("grammar-panel").style.display = (name === "grammar") ? "" : "none";
+    el("phonics-panel").style.display = (name === "phonics") ? "" : "none";
   }
 
   // ---------- 统计 ----------
@@ -12897,6 +13155,9 @@ var WORD_LISTS = [
     renderLearn();
     renderStats();
     renderWords();
+    renderPos();
+    renderGrammar();
+    renderPhonics();
   }
 
   // ---------- 初始化 ----------
@@ -12917,6 +13178,11 @@ var WORD_LISTS = [
     // 返回主界面
     var bh = el("back-home");
     if (bh) bh.addEventListener("click", function () { showView("learn"); });
+    // 基础学习子标签（词性 / 语法 / 音标）
+    var psTabs = document.querySelectorAll(".ps-tab");
+    for (var pi = 0; pi < psTabs.length; pi++) {
+      psTabs[pi].addEventListener("click", function () { switchPosTab(this.getAttribute("data-pos")); });
+    }
     // 听学
     el("listen-play").addEventListener("click", toggleListen);
     el("readall-play").addEventListener("click", startReadAll);

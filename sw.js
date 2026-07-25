@@ -1,4 +1,4 @@
-const CACHE = "be850-v15";
+const CACHE = "be850-v16";
 const FILES = ["./", "./index.html", "./app.js", "./words.js", "./wordlists.js", "./manifest.json", "./icon.svg", "./icon-192.png", "./icon-512.png"];
 
 self.addEventListener("install", function (e) {
