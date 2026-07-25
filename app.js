@@ -592,6 +592,10 @@
 
   // ---------- 听学视图 ----------
   var listenList = [], listenIdx = 0, listenPlaying = false, listenTimer = null;
+  function listenSave() {
+    state.listen = { idx: listenIdx, range: state.settings.range || "all", done: !listenPlaying };
+    save();
+  }
   function buildListenList() {
     var range = state.settings.range, list = [];
     if (range && range.indexOf("wl:") === 0) {
@@ -646,8 +650,9 @@
       // 循环播放关闭：播一遍后停止；开启：回到开头重播
       if (!state.settings.loopListen) {
         listenPlaying = false;
-        el("listen-play").textContent = "▶";
+        updateBigPlayButton();
         el("listen-status").textContent = "播放完成 ✓";
+        listenSave();  // 标记已完成
         releaseWakeLock();
         updateModeButtons();
         updateNavInfo();
@@ -658,33 +663,54 @@
     var item = listenList[listenIdx];
     setListenDisplay(item);
     el("listen-status").textContent = "正在播放 " + (listenIdx + 1) + " / " + listenList.length;
+    updateListenHint();
     // 对一个单词循环朗读「单词→词性→中文→例句」N 遍，再下一个（N=每词朗读次数）
     var reps = parseInt(state.settings.readallReps, 10) || 3;
     playSeqReps(item, reps, function () {
-      listenTimer = setTimeout(function () { listenTimer = null; listenIdx++; listenTick(); }, state.settings.gap * 1000);
+      listenIdx++;
+      listenSave();  // 每词后保存断点，刷新不丢进度
+      listenTimer = setTimeout(function () { listenTimer = null; listenTick(); }, state.settings.gap * 1000);
     });
   }
   // 两个朗读模式互斥：激活其中一个时，禁用另一个的播放按钮，避免互相串台
+  // 注意：大按钮 #listen-play 是通用播放/暂停，永不禁用（见 updateBigPlayButton）
   function updateModeButtons() {
-    var lp = el("listen-play"), rp = el("readall-play");
+    var rp = el("readall-play");
     if (readAllPlaying) {
-      if (lp) { lp.disabled = true; lp.style.opacity = ".45"; lp.title = "一键朗读进行中，请先停止"; }
       if (rp) { rp.disabled = false; rp.style.opacity = "1"; rp.title = ""; }
     } else if (listenPlaying) {
       if (rp) { rp.disabled = true; rp.style.opacity = ".45"; rp.title = "每日听学进行中，请先停止"; }
-      if (lp) { lp.disabled = false; lp.style.opacity = "1"; lp.title = ""; }
     } else {
-      if (lp) { lp.disabled = false; lp.style.opacity = "1"; lp.title = ""; }
       if (rp) { rp.disabled = false; rp.style.opacity = "1"; rp.title = ""; }
     }
+    updateBigPlayButton();
+  }
+  // 大按钮统一状态：▶ = 无播放 / ⏸ = 任一模式在播
+  function updateBigPlayButton() {
+    var bp = el("listen-play");
+    if (!bp) return;
+    var active = readAllPlaying || listenPlaying;
+    bp.textContent = active ? "⏸" : "▶";
+    bp.disabled = false;
+    bp.style.opacity = "1";
+    bp.title = active ? "点击暂停" : "点击开始听学";
+  }
+  // 大按钮点击：智能分发到对应模式
+  function onBigPlayClick() {
+    if (readAllPlaying) { stopReadAll(false); return; }
+    if (listenPlaying) { toggleListen(); return; }
+    // 都没在播 → 启动听学模式
+    toggleListen();
   }
   function toggleListen() {
     if (listenPlaying) {
       listenPlaying = false;
       if (listenTimer) { clearTimeout(listenTimer); listenTimer = null; }
       stopAudio();   // 立即掐断当前音频
-      el("listen-play").textContent = "▶";
+      updateBigPlayButton();
       el("listen-status").textContent = "已暂停";
+      listenSave();  // 暂停时保存进度
+      updateListenHint();
       releaseWakeLock();
       msSetState(false);
       updateModeButtons();
@@ -694,8 +720,16 @@
       if (!HAS_AUDIO && !("speechSynthesis" in window)) { alert("当前环境无法播放语音"); return; }
       listenList = buildListenList();
       if (!listenList.length) { alert("该范围还没有词，先去学习一些吧"); return; }
+      // 断点续读：存在未完成进度且范围一致则从上次位置继续
+      var ls = state.listen || {};
+      if (ls.done !== true && typeof ls.idx === "number" && ls.idx > 0
+          && ls.idx < listenList.length && ls.range === (state.settings.range || "all")) {
+        listenIdx = ls.idx;
+      } else {
+        listenIdx = 0;
+      }
       listenPlaying = true;
-      el("listen-play").textContent = "⏸";
+      updateBigPlayButton();
       if (state.settings.keepAwake) requestWakeLock();
       msSetState(true);
       updateModeButtons();
@@ -745,6 +779,13 @@
     var len = (readAllList && readAllList.length) || WORDS.length;
     if (ra.done === true || typeof ra.idx !== "number" || ra.idx >= len) { h.textContent = ""; return; }
     h.textContent = "断点：第 " + (ra.round || 1) + " 遍 · 第 " + (ra.idx + 1) + " 词";
+  }
+  function updateListenHint() {
+    var ls = state.listen || {}, h = el("listen-hint");
+    if (!h) return;
+    var len = (listenList && listenList.length) || WORDS.length;
+    if (ls.done === true || typeof ls.idx !== "number" || ls.idx >= len || ls.idx <= 0) { h.textContent = ""; return; }
+    h.textContent = "断点续读：第 " + (ls.idx + 1) + " / " + len + " 词（上次暂停位置）";
   }
   function startReadAll() {
     if (readAllPlaying) { stopReadAll(false); return; }
@@ -1603,7 +1644,7 @@
       psTabs[pi].addEventListener("click", function () { switchPosTab(this.getAttribute("data-pos")); });
     }
     // 听学
-    el("listen-play").addEventListener("click", toggleListen);
+    el("listen-play").addEventListener("click", onBigPlayClick);
     el("readall-play").addEventListener("click", startReadAll);
     el("readall-restart").addEventListener("click", restartReadAll);
     // 音标：一键朗读全部 + 停止
@@ -1657,13 +1698,20 @@
       var v = Math.min(WORDS.length, Math.max(1, parseInt(this.value, 10) || WORDS.length));
       state.settings.ab.b = v; this.value = v; save();
     });
-    // 断点续读：若上次有未完成的朗读进度，按钮提示“继续朗读”
+    // 断点续读：若上次有未完成的朗读进度，按钮提示"继续朗读"
     var ra0 = state.readAll || {};
     if (ra0.done !== true && typeof ra0.idx === "number" && ra0.idx < WORDS.length) {
       el("readall-play").textContent = "▶ 继续朗读（断点续读）";
     }
     updateReadAllHint();
-    el("listen-range").addEventListener("change", function () { state.settings.range = this.value; save(); });
+    // 听学断点续读：若上次有未完成的听学进度，大按钮提示"继续听学"
+    var ls0 = state.listen || {};
+    if (ls0.done !== true && typeof ls0.idx === "number" && ls0.idx > 0) {
+      var bp = el("listen-play");
+      if (bp) { bp.textContent = "▶"; bp.title = "继续听学（断点续读）"; }
+    }
+    updateListenHint();
+    el("listen-range").addEventListener("change", function () { state.settings.range = this.value; save(); state.listen = { idx: 0, done: true }; save(); updateListenHint(); });
     el("listen-order").addEventListener("change", function () { state.settings.order = this.value; save(); });
     el("listen-rate").addEventListener("input", function () {
       state.settings.rate = parseFloat(this.value); el("rate-val").textContent = this.value + "×"; save();
