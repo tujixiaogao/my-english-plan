@@ -275,10 +275,34 @@
     ]
   };
   function getWordObj(w) { return ALL_WORD_MAP[w] || null; }
+  // 根据模式字符串返回词数组（支持 "wl:listId" / "all" / "learned" / "personal" 等）
+  function getWordsByMode(mode) {
+    if (mode && mode.indexOf("wl:") === 0) {
+      var lid = mode.substring(3);
+      if (lid === "all") {
+        // 合并所有列表去重
+        var seen = {}, merged = [];
+        for (var li = 0; li < WORD_LISTS.length; li++) {
+          var ws = (WORD_LISTS[li].words === WORDS) ? WORDS : WORD_LISTS[li].words;
+          for (var i = 0; i < ws.length; i++) {
+            if (!seen[ws[i].w]) { seen[ws[i].w] = true; merged.push(ws[i]); }
+          }
+        }
+        return merged;
+      }
+      for (var j = 0; j < WORD_LISTS.length; j++) {
+        if (WORD_LISTS[j].id === lid) return (WORD_LISTS[j].words === WORDS) ? WORDS : WORD_LISTS[j].words;
+      }
+      return WORDS; // fallback
+    }
+    return WORDS; // fallback for "all" and other legacy modes
+  }
   function passagePool() {
     var mode = el("passage-source") ? el("passage-source").value : "all";
     var pool = [];
-    if (mode === "personal") {
+    if (mode && mode.indexOf("wl:") === 0) {
+      pool = getWordsByMode(mode).slice();
+    } else if (mode === "personal") {
       (state.personal || []).forEach(function (w) { var o = getWordObj(w); if (o) pool.push(o); });
     } else if (mode === "learned") {
       for (var k in state.learned) { if (state.learned[k]) { var o = getWordObj(k); if (o) pool.push(o); } }
@@ -555,11 +579,14 @@
   var listenList = [], listenIdx = 0, listenPlaying = false, listenTimer = null;
   function buildListenList() {
     var range = state.settings.range, list = [];
-    if (range === "learned") {
-      for (var i = 0; i < WORDS.length; i++) if (state.learned[WORDS[i].w]) list.push(WORDS[i]);
+    if (range && range.indexOf("wl:") === 0) {
+      list = getWordsByMode(range).slice();
+    } else if (range === "learned") {
+      var src = WORDS;
+      for (var i = 0; i < src.length; i++) if (state.learned[src[i].w]) list.push(src[i]);
     } else if (range === "today") {
       state.today.tasks.forEach(function (id) {
-        for (var j = 0; j < WORDS.length; j++) if (WORDS[j].w === id) { list.push(WORDS[j]); break; }
+        var o = getWordObj(id); if (o) list.push(o);
       });
     } else list = WORDS.slice();
     if (state.settings.order === "shuffle") {
@@ -671,7 +698,9 @@
     var s = state.settings;
     var mode = s.readallMode || "all";
     var list;
-    if (mode === "letter") {
+    if (mode && mode.indexOf("wl:") === 0) {
+      list = getWordsByMode(mode).slice();
+    } else if (mode === "letter") {
       var L = (s.readallLetter || "A").toUpperCase();
       list = WORDS.filter(function (w) { return w.w.charAt(0).toUpperCase() === L; });
     } else if (mode === "personal") {
