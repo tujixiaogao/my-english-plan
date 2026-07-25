@@ -132,11 +132,11 @@
   .g-intro{font-size:15px;color:#444;line-height:1.55;}
   .g-formula{font-size:14px;color:var(--text);background:var(--blue-l);border-radius:10px;padding:8px 10px;margin-top:8px;line-height:1.5;}
   .g-ex{font-size:14px;color:var(--text);margin-top:6px;line-height:1.5;}
-  /* 语法思维导图 */
-  #grammar-mindmap{background:var(--blue-l);border:1px solid var(--line);border-radius:14px;padding:6px 4px;}
-  #grammar-mindmap svg{user-select:none;}
+  /* 语法 / 音标思维导图 */
+  #grammar-mindmap, #phonics-mindmap{background:var(--blue-l);border:1px solid var(--line);border-radius:14px;padding:6px 4px;margin:8px 0;}
+  #grammar-mindmap svg, #phonics-mindmap svg{user-select:none;}
   @keyframes gflash{0%{box-shadow:0 0 0 0 var(--blue);}50%{box-shadow:0 0 0 5px var(--blue-l);}100%{box-shadow:0 0 0 0 var(--blue-l);}}
-  .g-card.flash{animation:gflash .9s ease 2;border-color:var(--blue);}
+  .flash{animation:gflash .9s ease 2;}
   /* 音标卡片 */
   .ph-group{margin-top:6px;}
   .ph-group-title{font-size:13px;font-weight:700;color:var(--mut);margin:12px 0 4px;letter-spacing:1px;}
@@ -450,7 +450,8 @@
 
         <!-- 音标面板 -->
         <div id="phonics-panel" class="pos-panel" style="display:none">
-          <div class="muted" style="margin:6px 0 8px">音标分 <b>元音</b> 和 <b>辅音</b> 两大类。先点开「🔤 元音」学单元音，再展开双元音看扩展；辅音可单独点开。每张卡点「🔊 听音标」直接听音素本身，「🔊 听示例词」听单词例子，也可一键串读全部音标。</div>
+          <div class="muted" style="margin:6px 0 8px">音标分 <b>元音</b> 和 <b>辅音</b> 两大类。上方「思维导图」可点击跳转到对应分组；先点开「🔤 元音」学单元音，再展开双元音看扩展；辅音可单独点开。每张卡点「🔊 听音标」直接听音素本身，「🔊 听示例词」听单词例子，也可一键串读全部音标。</div>
+          <div id="phonics-mindmap"></div>
           <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap">
             <button id="phonics-readall" class="pos-play" style="flex:1;min-width:160px;background:var(--green)">🔊 一键朗读全部音标</button>
             <button id="phonics-stop" class="pos-play" style="flex:0 0 auto;background:#888">⏹ 停止</button>

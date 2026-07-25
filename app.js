@@ -1026,7 +1026,7 @@
         var idx = items[k];
         var ly = (c === 0) ? tY[k] : cy + 2;
         svg += mindLine(catX + catW, cy + 22, leafX, ly + leafH / 2);
-        svg += mindNode(leafX, ly, leafW, leafH, GRAMMAR_LESSONS[idx].name, "#fff", "#333", "g" + idx);
+        svg += mindNode(leafX, ly, leafW, leafH, GRAMMAR_LESSONS[idx].name, "#fff", "#333", 'data-g="' + idx + '"');
       }
     }
     svg += '</svg>';
@@ -1061,9 +1061,10 @@
       });
     }
   }
-  // 思维导图节点（data-g 用于点击跳转；无 g 的为中心/类别节点）
-  function mindNode(x, y, w, h, label, fill, color, g) {
-    var r = '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="11" ry="11" fill="' + fill + '" stroke="' + (g ? "#2f6fed" : "#bcd2ff") + '" stroke-width="' + (g ? 2 : 1) + '"' + (g ? ' data-g="' + g + '" style="cursor:pointer"' : '') + '>';
+  // 思维导图节点（attrs 为附加属性串，如 data-g="0" / data-cat="vowel" data-sub="mono"；空串=不可点击）
+  function mindNode(x, y, w, h, label, fill, color, attrs) {
+    var clickable = !!(attrs && attrs.length);
+    var r = '<rect x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" rx="11" ry="11" fill="' + fill + '" stroke="' + (clickable ? "#2f6fed" : "#bcd2ff") + '" stroke-width="' + (clickable ? 2 : 1) + '"' + (attrs ? " " + attrs : "") + (clickable ? ' style="cursor:pointer"' : '') + '>';
     r += '<title>' + esc(label) + '</title></rect>';
     r += '<text x="' + (x + w / 2) + '" y="' + (y + h / 2) + '" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="' + color + '" pointer-events="none">' + esc(label) + '</text>';
     return r;
@@ -1303,6 +1304,31 @@
 
     el("phonics-list").innerHTML = html;
 
+    // ---- 思维导图总览（可点击展开/跳转对应分组）----
+    var pv = PHONICS.filter(isVowel).length;
+    var pm = PHONICS.filter(function (p) { return p.g === "单元音"; }).length;
+    var pd = PHONICS.filter(function (p) { return p.g === "双元音"; }).length;
+    var pc = PHONICS.length - pv;
+    var psvg = '<svg viewBox="0 0 720 420" width="100%" style="max-width:720px;display:block;margin:6px auto 12px" font-family="inherit" role="img" aria-label="音标思维导图">';
+    psvg += mindNode(70, 195, 110, 46, "英语音标", "#2f6fed", "#fff", "");
+    psvg += mindLine(180, 218, 250, 92);
+    psvg += mindNode(250, 70, 140, 46, "元音 Vowels（" + pv + "）", "#e3edff", "#1f4fb0", 'data-cat="vowel"');
+    psvg += mindLine(390, 93, 470, 51);
+    psvg += mindNode(470, 30, 190, 42, "单元音（" + pm + "）", "#fff", "#333", 'data-cat="vowel" data-sub="mono"');
+    psvg += mindLine(390, 93, 470, 151);
+    psvg += mindNode(470, 130, 190, 42, "双元音（" + pd + "）", "#fff", "#333", 'data-cat="vowel" data-sub="diph"');
+    psvg += mindLine(180, 218, 250, 350);
+    psvg += mindNode(250, 328, 140, 46, "辅音 Consonants（" + pc + "）", "#e3edff", "#1f4fb0", 'data-cat="cons"');
+    psvg += mindLine(390, 351, 470, 349);
+    psvg += mindNode(470, 328, 190, 42, "全部辅音（" + pc + "）", "#fff", "#333", 'data-cat="cons"');
+    psvg += '</svg>';
+    el("phonics-mindmap").innerHTML = psvg;
+    el("phonics-mindmap").addEventListener("click", function (e) {
+      var t = e.target.closest ? e.target.closest("[data-cat]") : null;
+      if (!t) return;
+      openPhonicsGroup(t.getAttribute("data-cat"), t.getAttribute("data-sub"));
+    });
+
     // 「听示例词」按钮
     var exBtns = el("phonics-list").querySelectorAll(".ph-play-ex");
     for (var i = 0; i < exBtns.length; i++) {
@@ -1338,6 +1364,34 @@
         if (arrow) arrow.textContent = isOpen ? "▾" : "▸";
       });
     }
+  }
+  // 音标思维导图点击：展开对应大类/子分组并滚动高亮
+  function openPhonicsGroup(cat, sub) {
+    var box = el("phonics-list").querySelector('.ph-cat[data-cat="' + cat + '"]');
+    if (box) {
+      box.classList.add("ph-cat-open");
+      var body = box.querySelector(".ph-cat-body"); if (body) body.style.display = "";
+      var arrow = box.querySelector(".ph-arrow"); if (arrow) arrow.textContent = "▾";
+      flashEl(box);
+    }
+    if (sub) {
+      var sbox = el("phonics-list").querySelector('.ph-sub[data-sub="' + sub + '"]');
+      if (sbox) {
+        sbox.classList.add("ph-sub-open");
+        var sbody = sbox.querySelector(".ph-sub-body"); if (sbody) sbody.style.display = "";
+        var sarrow = sbox.querySelector(".ph-arrow"); if (sarrow) sarrow.textContent = "▾";
+        flashEl(sbox);
+      }
+    }
+    var target = sub ? el("phonics-list").querySelector('.ph-sub[data-sub="' + sub + '"]') : box;
+    if (target) target.scrollIntoView({ behavior: "smooth", block: sub ? "center" : "start" });
+  }
+  function flashEl(node) {
+    if (!node) return;
+    node.classList.remove("flash");
+    void node.offsetWidth; // 重启动画
+    node.classList.add("flash");
+    setTimeout(function () { node.classList.remove("flash"); }, 2000);
   }
   // 播放单个示例词：优先离线音频，否则回退浏览器 TTS
   function playPhonicsWord(word, cb) {
